@@ -1,6 +1,8 @@
 name: golang
 description: Go, microservices, gRPC
 provides:
-  agents: []
+  agents:
+    - go-reviewer
+    - go-build-resolver
   rules: []
   commands: []

@@ -1,6 +1,8 @@
 name: rust
 description: Rust, Axum/Actix, systems programming
 provides:
-  agents: []
+  agents:
+    - rust-reviewer
+    - rust-build-resolver
   rules: []
   commands: []

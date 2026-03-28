@@ -4,6 +4,8 @@ provides:
   agents:
     - databricks-developer
     - databricks-architect
+    - python-reviewer
+    - pytorch-build-resolver
   commands:
     - validate-pipeline
   rules:

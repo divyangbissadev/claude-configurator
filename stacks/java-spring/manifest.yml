@@ -3,6 +3,7 @@ description: Java, Spring Boot, Maven/Gradle
 provides:
   agents:
     - spring-reviewer
+    - java-build-resolver
   rules:
     - java-style
     - testing

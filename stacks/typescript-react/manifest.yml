@@ -3,6 +3,7 @@ description: TypeScript, React, Node.js
 provides:
   agents:
     - react-reviewer
+    - typescript-reviewer
   rules:
     - typescript-style
     - testing
