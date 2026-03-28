@@ -1,3 +1,20 @@
 {
-  "hooks": []
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "cat .claude/session-context.md 2>/dev/null || echo 'No session context found.'",
+        "description": "Load persisted session context on startup"
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "date '+Session ended: %Y-%m-%d %H:%M:%S' >> .claude/session-log.txt",
+        "description": "Log session end timestamp"
+      }
+    ],
+    "PreToolUse": [],
+    "PostToolUse": []
+  }
 }

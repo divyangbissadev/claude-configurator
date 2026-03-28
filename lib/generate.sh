@@ -27,9 +27,11 @@ run_generate() {
     # Step 1: Clear .claude/ generated dirs (preserve .claude-local/)
     rm -rf "$pod_root/.claude/agents" "$pod_root/.claude/commands" \
            "$pod_root/.claude/rules" "$pod_root/.claude/hooks" \
+           "$pod_root/.claude/contexts" "$pod_root/.claude/mcp-configs" \
            "$pod_root/.claude/settings.json"
     mkdir -p "$pod_root/.claude/agents" "$pod_root/.claude/commands" \
-             "$pod_root/.claude/rules" "$pod_root/.claude/hooks"
+             "$pod_root/.claude/rules" "$pod_root/.claude/hooks" \
+             "$pod_root/.claude/contexts" "$pod_root/.claude/mcp-configs"
 
     # Step 2-5: Copy core
     copy_layer "$config_root/core" "$pod_root/.claude"
@@ -63,7 +65,7 @@ run_generate() {
 
 copy_layer() {
     local src="$1" dst="$2"
-    for subdir in agents commands rules hooks; do
+    for subdir in agents commands rules hooks contexts mcp-configs; do
         if [[ -d "$src/$subdir" ]]; then
             mkdir -p "$dst/$subdir"
             # Copy .md and .json files if they exist
