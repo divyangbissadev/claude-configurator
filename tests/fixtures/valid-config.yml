@@ -1,0 +1,37 @@
+pod:
+  name: "robotics-wfl"
+  team: "Data Engineering"
+  description: "Ottava/Monarch surgical case ingestion pipelines"
+
+stack: "python-spark"
+
+workflows:
+  - ci-quality-gate
+  - tdd
+  - incident-response
+
+overrides:
+  agents:
+    include:
+      - .claude-local/agents/databricks-developer.md
+      - .claude-local/agents/pipeline-debugger.md
+    exclude:
+      - onboarding-guide
+  rules:
+    include:
+      - .claude-local/rules/pyspark-style.md
+    exclude: []
+  commands:
+    include:
+      - .claude-local/commands/validate-pipeline.md
+    exclude: []
+
+vars:
+  repo_name: "jnj-pdp-robotics-wfl"
+  repo_host: "azure-devops"
+  commit_format: "<JIRA_ID>: <Brief summary>"
+  coverage_minimum: "80"
+  primary_language: "python"
+  test_command: "make test"
+  lint_command: "make lint"
+  ci_command: "make ci"
