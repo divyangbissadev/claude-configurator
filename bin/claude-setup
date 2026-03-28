@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIGURATOR_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+usage() {
+    cat <<'USAGE'
+Usage: claude-setup <command>
+
+Commands:
+    init        Initialize a new pod (interactive wizard)
+    generate    Generate .claude/ from claude-pod.yml
+    sync        Regenerate after updating configurator
+
+Options:
+    -h, --help  Show this help message
+USAGE
+}
+
+main() {
+    if [[ $# -eq 0 ]]; then
+        usage
+        exit 1
+    fi
+
+    local cmd="$1"
+    shift
+
+    case "$cmd" in
+        init)
+            source "$CONFIGURATOR_ROOT/lib/init_wizard.sh"
+            run_init "$@"
+            ;;
+        generate)
+            source "$CONFIGURATOR_ROOT/lib/generate.sh"
+            run_generate "$@"
+            ;;
+        sync)
+            source "$CONFIGURATOR_ROOT/lib/sync.sh"
+            run_sync "$@"
+            ;;
+        -h|--help)
+            usage
+            ;;
+        *)
+            echo "Error: Unknown command '$cmd'"
+            usage
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"
