@@ -1,0 +1,6 @@
+- **No `unwrap()` in production code** — use `?` operator or explicit error handling
+- **No `clone()` without justification** — prefer borrowing
+- **No `unsafe` without a safety comment** — document the invariant being upheld
+- **No `String` where `&str` suffices** — minimize allocations
+- **No `Box<dyn Error>`** — use `thiserror` for library errors, `anyhow` for applications
+- **No blocking in async context** — use `tokio::task::spawn_blocking` for CPU-bound work

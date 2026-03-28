@@ -1,0 +1,6 @@
+name: golang
+description: Go, microservices, gRPC
+provides:
+  agents: []
+  rules: []
+  commands: []

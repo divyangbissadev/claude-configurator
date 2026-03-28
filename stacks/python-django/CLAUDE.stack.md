@@ -1,0 +1,7 @@
+- **No raw SQL without parameterization** — use Django ORM or `params=[]`
+- **No `*` in SELECT queries** — specify fields explicitly with `.values()` or `.only()`
+- **No N+1 queries** — use `select_related()` and `prefetch_related()`
+- **No business logic in views** — views delegate to services or model methods
+- **No `DEBUG = True` in production** — always check `settings.DEBUG`
+- **No hardcoded secrets** — use `django-environ` or environment variables
+- **No `Model.objects.all()` without pagination** — unbounded queries are dangerous

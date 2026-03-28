@@ -1,0 +1,7 @@
+- **No `panic()` in library code** — return errors, let caller decide
+- **No `interface{}` without type assertion** — use generics (Go 1.18+)
+- **No goroutine without context cancellation** — always pass `ctx`
+- **No `init()` functions** — use explicit initialization for testability
+- **No global mutable state** — pass dependencies explicitly
+- **No ignoring errors** — `_ = someFunc()` is almost always wrong
+- **No `log.Fatal` in libraries** — return errors to the caller

@@ -1,0 +1,6 @@
+name: rust
+description: Rust, Axum/Actix, systems programming
+provides:
+  agents: []
+  rules: []
+  commands: []

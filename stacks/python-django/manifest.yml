@@ -1,0 +1,6 @@
+name: python-django
+description: Python, Django, Django REST Framework
+provides:
+  agents: []
+  rules: []
+  commands: []

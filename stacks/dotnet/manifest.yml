@@ -1,0 +1,6 @@
+name: dotnet
+description: .NET, C#, ASP.NET Core
+provides:
+  agents: []
+  rules: []
+  commands: []

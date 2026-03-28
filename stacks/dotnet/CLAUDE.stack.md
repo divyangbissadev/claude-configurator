@@ -1,0 +1,7 @@
+- **No `async void`** — use `async Task` for proper exception propagation
+- **No `Task.Result` or `Task.Wait()`** — use `await` to avoid deadlocks
+- **No service locator pattern** — use constructor injection via DI container
+- **No `catch (Exception) { }` (empty catch)** — log or rethrow
+- **No `string` for IDs** — use strongly-typed IDs or Guid
+- **No business logic in controllers** — controllers delegate to services
+- **No `DateTime.Now`** — use `ISystemClock` or `TimeProvider` for testability
