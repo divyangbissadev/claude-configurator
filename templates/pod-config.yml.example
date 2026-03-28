@@ -1,0 +1,38 @@
+# claude-pod.yml — describes this pod's Claude Code setup
+# Copy this file to your repo root as claude-pod.yml and customize.
+
+pod:
+  name: "my-pod"
+  team: "My Team"
+  description: "Brief description of what this pod builds"
+
+# Available stacks: python-spark, java-spring, typescript-react, golang, dotnet, python-django, rust
+stack: "python-spark"
+
+# Available workflows: ci-quality-gate, tdd, incident-response, adr, onboarding
+workflows:
+  - ci-quality-gate
+  - tdd
+
+# Override generated agents/rules/commands
+overrides:
+  agents:
+    include: []
+    exclude: []
+  rules:
+    include: []
+    exclude: []
+  commands:
+    include: []
+    exclude: []
+
+# Variables injected into CLAUDE.md
+vars:
+  repo_name: "my-repo"
+  repo_host: "github"
+  commit_format: "feat: <summary>"
+  coverage_minimum: "80"
+  primary_language: "python"
+  test_command: "make test"
+  lint_command: "make lint"
+  ci_command: "make ci"

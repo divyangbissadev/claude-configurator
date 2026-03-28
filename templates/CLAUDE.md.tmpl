@@ -1,0 +1,39 @@
+# CLAUDE.md
+
+## Project
+
+{{POD_DESCRIPTION}}
+
+- **Repo**: {{REPO_HOST}} — `{{REPO_NAME}}`
+- **Stack**: {{STACK}}
+- **Team**: {{POD_TEAM}}
+
+## Commands
+
+```bash
+{{TEST_COMMAND}}              # Run tests ({{COVERAGE_MINIMUM}}% minimum)
+{{LINT_COMMAND}}              # Lint & format check
+{{CI_COMMAND}}                # Full CI gate
+```
+
+## Verification
+
+- After ANY code change: run `{{TEST_COMMAND}}`
+- Before committing: run `{{CI_COMMAND}}`
+- Commit format: `{{COMMIT_FORMAT}}`
+
+## Critical Anti-Patterns
+
+{{FILE:STACK_ANTIPATTERNS}}
+
+## Skills & Agents
+
+### Slash Commands
+
+{{COMMANDS_LIST}}
+
+### Agents
+
+{{AGENTS_LIST}}
+
+{{FILE:EXTRA_SECTIONS}}
