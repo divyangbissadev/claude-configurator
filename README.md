@@ -1,93 +1,76 @@
 # jnj-claude-configurator
 
-Enterprise-grade, template-driven Claude Code configuration generator for multi-pod organizations. Inspired by [everything-claude-code](https://github.com/affaan-m/everything-claude-code), adapted for federated team structures with layered config assembly.
+Enterprise-grade Claude Code configuration generator for multi-pod organizations. **184 files** including 22 core agents, 23 commands, 10 stacks, 7 workflows, 12 hook scripts, write-gated agent memory, JIRA time tracking, and usage analytics.
+
+Inspired by [everything-claude-code](https://github.com/affaan-m/everything-claude-code). Development methodology powered by [Superpowers](https://github.com/obra/superpowers).
 
 ---
 
 ## Table of Contents
 
-- [What This Does](#what-this-does)
-- [Greenfield Project Setup](#greenfield-project-setup)
-- [Brownfield Project Setup](#brownfield-project-setup)
-- [How It Works](#how-it-works)
-- [Daily Developer Experience](#daily-developer-experience)
-- [Customizing Your Setup](#customizing-your-setup)
-  - [Changing Workflows](#changing-workflows)
-  - [Adding Pod-Specific Agents](#adding-pod-specific-agents)
-  - [Adding Pod-Specific Commands](#adding-pod-specific-commands)
-  - [Adding Pod-Specific Rules](#adding-pod-specific-rules)
-  - [Adding CLAUDE.md Sections](#adding-claudemd-sections)
-  - [Excluding Default Agents](#excluding-default-agents)
-  - [Customizing Hooks](#customizing-hooks)
-  - [Adding MCP Integrations](#adding-mcp-integrations)
-- [Updating the Configurator](#updating-the-configurator)
-- [What's Included](#whats-included)
-- [Adding a New Stack](#adding-a-new-stack)
-- [Adding a New Workflow](#adding-a-new-workflow)
-- [Architecture](#architecture)
-- [CLI Reference](#cli-reference)
-- [Example Templates](#example-templates)
-- [FAQ](#faq)
-- [Credits](#credits)
+1. [What This Solves](#what-this-solves)
+2. [Quick Start (60 seconds)](#quick-start)
+3. [Greenfield Project Setup](#greenfield-project-setup)
+4. [Brownfield Project Setup](#brownfield-project-setup)
+5. [How It Works](#how-it-works)
+6. [Daily Developer Experience](#daily-developer-experience)
+7. [Complete Feature Reference](#complete-feature-reference)
+   - [Core Agents (22)](#core-agents-22)
+   - [Core Commands (23)](#core-commands-23)
+   - [Core Rules (9)](#core-rules-9)
+   - [Contexts (3)](#contexts-3)
+   - [Hooks (12 scripts, 10 events)](#hooks-12-scripts-10-events)
+   - [Agent Memory System](#agent-memory-system)
+   - [MCP Integrations (2)](#mcp-integrations-2)
+   - [Stacks (10)](#stacks-10)
+   - [Workflows (7)](#workflows-7)
+   - [Example Templates (4)](#example-templates-4)
+8. [Customizing Your Setup](#customizing-your-setup)
+9. [Superpowers Integration](#superpowers-integration)
+10. [Contributing (New Stacks & Workflows)](#contributing)
+11. [CLI Reference](#cli-reference)
+12. [Architecture](#architecture)
+13. [FAQ](#faq)
 
 ---
 
-## What This Does
+## What This Solves
 
-Every developer using Claude Code in your org gets a different experience — different agents, rules, conventions, and quality gates. This configurator solves that by generating a consistent, tailored `.claude/` setup for each team (pod) from shared templates.
+| Problem | Solution |
+|---------|----------|
+| Every developer configures Claude Code differently | One `claude-pod.yml` → consistent setup across the team |
+| New devs don't know team conventions | Rules + anti-patterns enforced automatically from day 1 |
+| Claude gives generic advice | Stack-specific agents know Spring/PySpark/Go/Rust idioms |
+| Same anti-patterns keep appearing in reviews | Stack anti-patterns caught automatically every time |
+| Code reviews are inconsistent | code-reviewer + stack-reviewer apply the same standards |
+| Nobody keeps CLAUDE.md updated | Auto-generated from config — always current |
+| No visibility into AI tool usage | Usage tracker with cost estimates and Langfuse export |
+| No time tracking per JIRA ticket | JIRA tracker auto-links sessions to tickets from branch names |
+| Agent context resets every session | Write-gated agent memory persists learned patterns across sessions |
+| Dangerous commands executed accidentally | PreToolUse hooks block `rm -rf`, force push, destructive SQL |
 
+---
+
+## Quick Start
+
+```bash
+# In your pod repo
+git submodule add <configurator-repo-url> .claude-configurator
+
+# Interactive wizard (2 minutes)
+.claude-configurator/bin/claude-setup init
+
+# Done. Open Claude Code — everything is configured.
 ```
-┌─────────────────────────────────────────────────────────┐
-│                  jnj-claude-configurator                 │
-│                                                         │
-│  core/          stacks/          workflows/              │
-│  ├── agents/    ├── python-spark/ ├── ci-quality-gate/  │
-│  ├── commands/  ├── java-spring/  ├── tdd/              │
-│  ├── rules/     ├── golang/       ├── incident-response/│
-│  ├── contexts/  ├── rust/         ├── adr/              │
-│  ├── hooks/     ├── typescript/   └── onboarding/       │
-│  └── mcp/       └── 5 more...                           │
-└──────────────────────┬──────────────────────────────────┘
-                       │ claude-setup generate
-                       ▼
-┌─────────────────────────────────────────────────────────┐
-│                    Your Pod Repo                         │
-│                                                         │
-│  .claude/           (GENERATED — don't hand-edit)        │
-│  ├── agents/        core + stack + workflow + your own   │
-│  ├── commands/      core + stack + workflow + your own   │
-│  ├── rules/         core + stack + workflow              │
-│  ├── contexts/      dev, review, research                │
-│  ├── hooks/         session lifecycle                    │
-│  ├── mcp-configs/   GitHub, Azure DevOps                 │
-│  └── settings.json  auto-generated permissions           │
-│                                                         │
-│  .claude-local/     (YOUR overrides — hand-edit these)   │
-│  ├── agents/        pod-specific agents                  │
-│  ├── commands/      pod-specific commands                 │
-│  ├── rules/         pod-specific rules                   │
-│  └── CLAUDE.extra.md  architecture, extensions, refs     │
-│                                                         │
-│  claude-pod.yml     (YOUR config — stack, workflows)     │
-│  CLAUDE.md          (GENERATED from template + config)   │
-└─────────────────────────────────────────────────────────┘
-```
-
-**One config file → full Claude Code setup, tailored to your stack.**
 
 ---
 
 ## Greenfield Project Setup
 
-Starting a brand new project? You'll have a fully-configured Claude Code setup in under 2 minutes.
-
-### Step 1: Create your repo and add the configurator
+### Step 1: Create repo and add configurator
 
 ```bash
-mkdir my-new-service && cd my-new-service
-git init
-
-# Add configurator as a submodule
+mkdir my-service && cd my-service && git init
 git submodule add <configurator-repo-url> .claude-configurator
 ```
 
@@ -97,48 +80,13 @@ git submodule add <configurator-repo-url> .claude-configurator
 .claude-configurator/bin/claude-setup init
 ```
 
-The wizard prompts you:
+The wizard asks:
+- Pod name, team, description
+- Stack (10 options: python-spark, java-spring, golang, rust, etc.)
+- Workflows to enable (ci-quality-gate, tdd, jira-tracker, etc.)
+- Your test/lint/ci commands, commit format, coverage minimum
 
-```
-=== Claude Code Pod Setup ===
-
-Pod name: order-service
-Team name: Platform Engineering
-Pod description: Order processing microservice with event sourcing
-
-Available stacks:
-  - python-spark (PySpark, Delta Lake, Databricks pipelines)
-  - java-spring (Java, Spring Boot, Maven/Gradle)
-  - typescript-react (TypeScript, React, Node.js)
-  - golang (Go, microservices, gRPC)
-  - rust (Rust, Axum/Actix, systems programming)
-  - kotlin (Kotlin, Android, Kotlin Multiplatform)
-  - cpp (C++20/23, systems programming)
-  - flutter (Flutter, Dart, cross-platform mobile)
-  - dotnet (.NET, C#, ASP.NET Core)
-  - python-django (Python, Django, Django REST Framework)
-Stack: golang
-
-Available workflows:
-  - ci-quality-gate (Lint, type check, test, security scan)
-  - tdd (Test-driven development)
-  - incident-response (Debugging and incident triage)
-  - adr (Architecture Decision Records)
-  - onboarding (New developer onboarding)
-Workflows (comma-separated): ci-quality-gate,tdd,adr
-
-Repo host (github/azure-devops/gitlab): github
-Commit format: feat|fix|chore: <summary>
-Coverage minimum (%): 80
-Primary language: go
-Test command: make test
-Lint command: make lint
-CI command: make ci
-
-Generated .claude/ and CLAUDE.md successfully.
-```
-
-### Step 3: Commit everything
+### Step 3: Commit
 
 ```bash
 git add .gitmodules .claude-configurator .claude/ .claude-local/ claude-pod.yml CLAUDE.md
@@ -147,41 +95,24 @@ git commit -m "feat: add Claude Code configuration"
 
 ### Step 4: Start building
 
-Open Claude Code. It already knows your stack, your conventions, and your quality gates. Every agent, command, and rule is configured.
-
-```
-You: "Set up the project structure for a Go gRPC service with PostgreSQL"
-```
-
-The **planner** and **architect** agents activate with Go-specific knowledge. The **go-reviewer** catches Go anti-patterns. The **tdd-guide** enforces test-first development.
+Claude Code now has your full setup — agents, commands, rules, hooks, contexts, memory.
 
 ---
 
 ## Brownfield Project Setup
 
-Joining an existing project? The configurator adapts to your existing conventions.
-
-### Step 1: Add the configurator submodule
+### Step 1: Add configurator
 
 ```bash
 cd existing-project
 git submodule add <configurator-repo-url> .claude-configurator
-```
-
-### Step 2: Run the wizard
-
-```bash
 .claude-configurator/bin/claude-setup init
 ```
 
-Answer the prompts based on your existing project's stack and conventions.
-
-### Step 3: Move existing Claude Code files to .claude-local/
-
-If you already have a `.claude/` directory with custom agents or commands:
+### Step 2: Migrate existing `.claude/` files
 
 ```bash
-# Move pod-specific agents (keep project-specific context)
+# Move pod-specific agents to .claude-local/ (they have project context)
 mv .claude/agents/my-custom-agent.md .claude-local/agents/
 
 # Move pod-specific commands
@@ -191,7 +122,7 @@ mv .claude/commands/my-custom-command.md .claude-local/commands/
 mv .claude/rules/my-custom-rule.md .claude-local/rules/
 ```
 
-### Step 4: Reference them in claude-pod.yml
+### Step 3: Register in `claude-pod.yml`
 
 ```yaml
 overrides:
@@ -201,40 +132,16 @@ overrides:
   commands:
     include:
       - .claude-local/commands/my-custom-command.md
-  rules:
-    include:
-      - .claude-local/rules/my-custom-rule.md
 ```
 
-### Step 5: Add your architecture context
+### Step 4: Add architecture context
 
-Create `.claude-local/CLAUDE.extra.md` with project-specific sections:
+Create `.claude-local/CLAUDE.extra.md` with your architecture diagrams, extension points, and reference documents. This is appended to the generated CLAUDE.md.
 
-```markdown
-## Architecture
-
-[Your architecture diagram and module descriptions]
-
-## Extension Points
-
-[How to add new features following your patterns]
-
-## Reference Documents
-
-[Links to ADRs, design docs, runbooks]
-```
-
-### Step 6: Regenerate and verify
+### Step 5: Regenerate and commit
 
 ```bash
 .claude-configurator/bin/claude-setup generate
-```
-
-Review the generated `CLAUDE.md` and `.claude/` directory. Everything from the configurator (core agents, stack rules, workflow commands) plus your pod-specific overrides should be present.
-
-### Step 7: Commit
-
-```bash
 git add .gitmodules .claude-configurator .claude/ .claude-local/ claude-pod.yml CLAUDE.md
 git commit -m "feat: adopt Claude Code configurator"
 ```
@@ -243,645 +150,581 @@ git commit -m "feat: adopt Claude Code configurator"
 
 ## How It Works
 
-The configurator assembles your `.claude/` directory from four layers, applied in order:
+### Layering Model
 
 ```
-Layer 1: core/          Always included (22 agents, 18 commands, 8 rules, ...)
-    ↓
-Layer 2: stacks/{X}/    Your chosen stack (language-specific agents, rules, anti-patterns)
-    ↓
-Layer 3: workflows/{Y}/ Your chosen workflows (opt-in commands, agents, rules)
-    ↓
-Layer 4: .claude-local/ Your pod-specific overrides (custom agents, commands, rules)
+┌─────────────────────────────────────────────────┐
+│  Layer 4: .claude-local/  (pod overrides)        │  Highest priority
+├─────────────────────────────────────────────────┤
+│  Layer 3: workflows/      (opt-in modules)       │
+├─────────────────────────────────────────────────┤
+│  Layer 2: stacks/         (language-specific)    │
+├─────────────────────────────────────────────────┤
+│  Layer 1: core/           (universal foundation) │  Lowest priority
+└─────────────────────────────────────────────────┘
 ```
 
-Later layers override earlier ones on filename conflict. So if `core/` and your stack both have a `testing.md` rule, the stack version wins.
+Later layers overwrite earlier on filename conflict. Your `.claude-local/` overrides always win.
 
 ### What gets generated
 
-| Generated File | Source |
-|---------------|--------|
-| `.claude/agents/*.md` | core + stack + workflow agents, minus excludes, plus includes |
-| `.claude/commands/*.md` | core + stack + workflow commands, minus excludes, plus includes |
-| `.claude/rules/*.md` | core + stack + workflow rules, minus excludes, plus includes |
-| `.claude/contexts/*.md` | core contexts (dev, review, research) |
-| `.claude/hooks/*` | core hooks (session lifecycle scripts) |
-| `.claude/mcp-configs/*` | core MCP configs (GitHub, Azure DevOps templates) |
-| `.claude/settings.json` | generated with your test/lint/ci commands allowed |
-| `CLAUDE.md` | rendered from template + your vars + stack anti-patterns + extras |
-
-### What you hand-edit
-
-| Your File | Purpose |
-|-----------|---------|
-| `claude-pod.yml` | Your pod's config (stack, workflows, overrides, vars) |
-| `.claude-local/agents/*.md` | Pod-specific agents |
-| `.claude-local/commands/*.md` | Pod-specific commands |
-| `.claude-local/rules/*.md` | Pod-specific rules |
-| `.claude-local/CLAUDE.extra.md` | Architecture, extensions, reference docs |
-| `.claude/settings.local.json` | User-specific permissions (not generated) |
+| Generated (don't hand-edit) | Your files (hand-edit these) |
+|---|---|
+| `.claude/agents/` | `.claude-local/agents/` |
+| `.claude/commands/` | `.claude-local/commands/` |
+| `.claude/rules/` | `.claude-local/rules/` |
+| `.claude/contexts/` | `.claude-local/CLAUDE.extra.md` |
+| `.claude/hooks/` | `claude-pod.yml` |
+| `.claude/mcp-configs/` | `.claude/settings.local.json` |
+| `.claude/settings.json` | |
+| `.claude/agent-memory/` (scaffolded, never overwritten) | |
+| `CLAUDE.md` | |
 
 ---
 
 ## Daily Developer Experience
 
-Once set up, developers don't need to know the configurator exists. They just use Claude Code — and it's smart about their codebase from the first interaction.
+### Session lifecycle (automatic)
 
-### Typical day
+```
+Session Start
+  → session-start.sh loads persisted context
+  → jira-session-start.sh detects ticket from branch (PR-557)
+  → inject-agent-memory.sh ready for subagent dispatches
+  → log-prompt.sh begins tracking
 
-| Task | What Happens | Active Agents/Commands |
-|------|-------------|----------------------|
-| Start session | Hook loads previous context automatically | `session-start.sh` |
-| "Explain this codebase" | Guided architecture walkthrough | `onboarding-guide`, `/explore` |
-| "Fix the failing build" | Minimal fix, no refactoring | `build-error-resolver`, `{stack}-build-resolver` |
-| "Add a new endpoint" | Plans → TDD → implements → reviews | `planner`, `tdd-guide`, `api-designer` |
-| `/tdd` | Strict red-green-refactor cycle | `tdd-guide` + tdd-conventions rule |
-| `/review-pr` | Multi-pass review (design → line-by-line → anti-patterns) | `code-reviewer`, `{stack}-reviewer` |
-| `/validate` | Runs your team's lint + test + CI gate | Uses `vars.test_command`, `vars.ci_command` |
-| "Is this SQL safe?" | Checks injection, indexes, N+1 | `database-reviewer`, `security-reviewer` |
-| `/checkpoint` | Saves state before risky operations | `pre-compact.sh` hook |
-| End session | Hook saves metadata for next time | `session-end.sh` |
+During Session
+  → block-dangerous.sh prevents rm -rf, force push, destructive SQL
+  → post-edit-check.sh scans for hardcoded secrets after each edit
+  → track-agent-usage.sh logs agent dispatches with cost estimates
+  → log-task-complete.sh tracks productivity
+  → memory-write-gate.sh validates before persisting learned context
+
+Session End
+  → session-end.sh saves metadata + usage estimates
+  → jira-session-end.sh calculates duration, logs against JIRA ticket
+  → Prints: session usage ($0.75 sonnet) + JIRA time (47m on PR-557)
+```
+
+### Common tasks
+
+| What You Do | What Activates | Stack Enhancement |
+|---|---|---|
+| "Explain this codebase" | `onboarding-guide` agent, `/explore` | Stack-specific conventions |
+| "Fix the failing build" | `build-error-resolver` + stack build resolver | Go/Java/Rust-specific fixes |
+| "Add a new endpoint" | `planner` → `tdd-guide` → `api-designer` | Stack API patterns |
+| `/tdd` | Red-green-refactor cycle enforced | Stack testing conventions |
+| `/review-pr` | `code-reviewer` + `security-reviewer` | Stack-specific anti-pattern scan |
+| `/validate` | Runs your `make ci` (from vars) | Stack lint/type rules |
+| "Check this SQL" | `database-reviewer` | Indexes, N+1, parameterization |
+| "How much have I spent?" | `/usage` or `/cost` | Model-specific pricing |
+| "Time on PR-557?" | `/jira-time` | Ticket-level breakdown |
+| "Ship it" | `/verify` then Superpowers finish-branch | Commit format from vars |
 
 ### Context modes
 
-Switch Claude's behavior based on what you're doing:
-
 | Mode | Activate | Behavior |
 |------|----------|----------|
-| **Dev** | "Switch to dev mode" | Speed-focused, TDD, small commits, YAGNI |
-| **Review** | "Switch to review mode" | Quality-focused, thorough, confidence-scored findings |
-| **Research** | "Switch to research mode" | Read-only exploration, no changes, document findings |
+| **dev** | "Switch to dev mode" | Speed, TDD, small commits, YAGNI |
+| **review** | "Switch to review mode" | Thoroughness, confidence scoring, security focus |
+| **research** | "Switch to research mode" | Read-only exploration, no changes, document findings |
 
-### Rules enforced silently
+---
 
-These rules apply to every interaction without you asking:
+## Complete Feature Reference
 
-- **git-workflow** — commit conventions, branch naming, PR size limits
-- **security** — no hardcoded credentials, parameterized queries, input validation
-- **testing** — every code path tested, behavior over implementation
-- **performance** — no O(n^2), no blocking calls, batch operations
-- **patterns** — composition over inheritance, DI, explicit over implicit
-- **documentation** — CLAUDE.md current, comments explain WHY not WHAT
-- Plus your **stack-specific rules** (e.g., no bare `col()` in PySpark, no field injection in Spring)
+### Core Agents (22)
+
+Every pod gets these regardless of stack:
+
+| Agent | Model | Purpose |
+|-------|-------|---------|
+| `accessibility-tester` | opus | WCAG 2.1 AA compliance, screen reader compat, keyboard navigation |
+| `api-designer` | opus | REST/GraphQL API design, versioning, contracts, error formats |
+| `architect` | sonnet | System design review, scalability, simplicity, extensibility |
+| `build-error-resolver` | sonnet | Fix build errors minimally — no refactoring, no architecture changes |
+| `chief-of-staff` | sonnet | Workflow orchestration, task triage (P0-P3), multi-agent coordination |
+| `code-reviewer` | sonnet | Multi-pass review: design → line-by-line → anti-patterns → confidence scoring |
+| `data-engineer` | opus | ETL pipelines, data quality checks, warehouse schema design |
+| `database-reviewer` | sonnet | Query optimization, index design, N+1 detection, RLS, parameterization |
+| `debugger` | sonnet | Scientific method: reproduce → hypothesize → investigate → isolate → fix |
+| `doc-updater` | sonnet | Keep CLAUDE.md, README, API docs current with codebase |
+| `docs-lookup` | sonnet | Find and retrieve documentation, assess freshness |
+| `e2e-runner` | sonnet | E2E test creation, flaky test management, journey coverage |
+| `loop-operator` | sonnet | Iterative processes: retry, converge, checkpoint, abort conditions |
+| `migration-specialist` | opus | Schema/data migrations, expand-contract, zero-downtime, rollback |
+| `onboarding-guide` | sonnet | Codebase walkthrough for new developers |
+| `performance-engineer` | opus | Profiling, bottleneck identification, optimization by impact/effort |
+| `planner` | sonnet | Implementation plans with exact file paths, dependencies, risk levels |
+| `prompt-engineer` | opus | LLM prompt design, evaluation frameworks, production prompt systems |
+| `refactor-cleaner` | sonnet | Dead code detection, duplicate elimination, safe refactoring |
+| `security-reviewer` | sonnet | OWASP Top 10, injection, auth, secrets, dependency vulnerabilities |
+| `tdd-guide` | sonnet | Enforce RED → GREEN → REFACTOR with edge case coverage |
+| `technical-writer` | opus | API docs, architecture docs, runbooks, user guides |
+
+### Core Commands (23)
+
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `/build-fix` | Fix build errors minimally | Build failures |
+| `/checkpoint` | Save work state for recovery | Before risky operations |
+| `/e2e` | Generate and run E2E tests | Testing critical user flows |
+| `/eval` | Evaluate against success criteria | Before claiming "done" |
+| `/explore` | Systematic codebase exploration | Understanding new code |
+| `/memory-correct` | Correct a memory entry with propagation | Wrong info in agent memory |
+| `/memory-prune` | Remove stale/expired memory entries | Monthly cleanup |
+| `/memory-search` | Search across all agent memories | Finding prior context |
+| `/memory-status` | Show memory entry counts and staleness | Health check |
+| `/memory-write` | Write validated entry to agent memory | Persisting learned patterns |
+| `/multi-execute` | Execute coordinated agent waves | Complex multi-domain tasks |
+| `/multi-plan` | Decompose task across agents | Planning complex work |
+| `/orchestrate` | Coordinate multiple agents | Cross-domain work |
+| `/plan` | Create implementation plan | Before coding any feature |
+| `/refactor-clean` | Remove dead code and duplicates | Periodic cleanup |
+| `/review-pr` | Multi-pass PR review | Before merge |
+| `/sessions` | View/restore session history | Resuming prior work |
+| `/setup-pod` | Refine pod config interactively | Changing setup |
+| `/tdd` | Red-green-refactor cycle | Feature development |
+| `/test-coverage` | Analyze coverage gaps | Before PR |
+| `/update-docs` | Sync docs with codebase | After major changes |
+| `/validate` | Run project quality gate | Before every commit |
+| `/verify` | Verify implementation matches spec | Before claiming done |
+
+### Core Rules (9)
+
+| Rule | Scope | Key Points |
+|------|-------|------------|
+| `agent-memory` | `.claude/agent-memory/**` | Format, write gates, corrections, security, hygiene |
+| `agents` | `.claude/agents/**` | Use specific agents, provide context, review output |
+| `documentation` | All files | CLAUDE.md current, comments explain WHY, no dead code |
+| `git-workflow` | All files | Commit format, branch naming, PR size < 400 lines |
+| `hooks` | `.claude/hooks/**` | Fast, idempotent, silent on success |
+| `patterns` | All files | Composition > inheritance, DI, explicit > implicit |
+| `performance` | All files | No O(n²), no blocking calls, batch operations, profile first |
+| `security` | Code files | No hardcoded creds, parameterized queries, validate input |
+| `testing` | Test files | Behavior > implementation, independent, edge cases required |
+
+### Contexts (3)
+
+| Context | File | Focus |
+|---------|------|-------|
+| `dev` | `.claude/contexts/dev.md` | Speed, TDD, small commits, read before write, YAGNI |
+| `review` | `.claude/contexts/review.md` | Correctness, security, design, tests, readability |
+| `research` | `.claude/contexts/research.md` | Understand first, map landscape, document, no changes |
+
+### Hooks (12 scripts, 10 events)
+
+| Event | Script | What It Does |
+|-------|--------|-------------|
+| **SessionStart** | `session-start.sh` | Loads `.claude/session-context.md` from previous session |
+| **UserPromptSubmit** | `log-prompt.sh` | Logs prompt length (not content) to CSV for analytics |
+| **PreToolUse (Bash)** | `block-dangerous.sh` | Blocks `rm -rf /`, `git push --force`, `git reset --hard`, `DROP TABLE` |
+| **PostToolUse (Agent)** | `track-agent-usage.sh` | Logs agent name, model, token count, cost estimate |
+| **PostToolUse (Edit/Write)** | `post-edit-check.sh` | Scans for hardcoded secrets and debug statements |
+| **SubagentStart** | `inject-agent-memory.sh` | Loads agent-specific + shared memory into subagent context |
+| **SubagentStop** | `capture-agent-learnings.sh` | Logs agent completion events |
+| **PreCompact** | `pre-compact.sh` | Checkpoints git state before context window compaction |
+| **Stop** | `session-end.sh` | Saves session metadata, estimates tokens and cost |
+| **TaskCompleted** | `log-task-complete.sh` | Logs task completions for productivity tracking |
+| **StopFailure** | `handle-rate-limit.sh` | Logs rate limit errors, suggests cost reduction |
+| (validation) | `memory-write-gate.sh` | Validates memory entries against 5 quality gates |
+
+### Agent Memory System
+
+Persistent, write-gated memory that prevents context rot across sessions.
+
+**Structure:**
+```
+.claude/agent-memory/
+├── shared/MEMORY.md              # Cross-agent knowledge
+├── code-reviewer/MEMORY.md       # Review patterns, recurring issues
+├── debugger/MEMORY.md            # Root causes, debugging insights
+├── planner/MEMORY.md             # Planning decisions, scope patterns
+└── ... (one per agent, auto-scaffolded)
+```
+
+**Entry format:**
+```markdown
+### [Pattern] N+1 query in OrderService — 2026-03-28
+
+**Context**: Found during PR review of order listing feature
+**Insight**: getOrders() makes individual DB calls per order for items. Use batch fetch.
+**Evidence**: src/services/OrderService.java:47
+**Confidence**: High
+**Expires**: Never
+```
+
+**Write gates** (must pass at least one):
+
+| Gate | Question | Prevents |
+|------|----------|----------|
+| Behavioral | Will this change how Claude acts next time? | Storing trivia |
+| Commitment | Is someone counting on this? | Forgetting deadlines |
+| Decision | Why was X chosen over Y? | Losing decision context |
+| Factual | Will this remain true tomorrow? | Storing ephemeral info |
+| Explicit | Did the user say "remember this"? | Missing explicit requests |
+
+**Correction propagation**: Old entries marked `[SUPERSEDED]`, corrections propagate to shared memory and other agents referencing the same fact.
+
+**Key design**: Memory files are **never overwritten** on `generate`/`sync` — learned knowledge survives updates.
+
+### MCP Integrations (2)
+
+Templates in `.claude/mcp-configs/` — copy and configure with your credentials:
+
+| Config | Service | Environment Variables |
+|--------|---------|----------------------|
+| `github.json` | GitHub API | `$GITHUB_TOKEN` |
+| `azure-devops.json` | Azure DevOps | `$ADO_ORG`, `$ADO_PAT` |
+
+### Stacks (10)
+
+| Stack | Agents | Anti-Patterns | Best For |
+|-------|--------|---------------|----------|
+| `python-spark` | databricks-developer, databricks-architect, python-reviewer, pytorch-build-resolver | 10 (no .count(), no bare col(), no schema inference) | Databricks, Delta Lake, PySpark |
+| `java-spring` | spring-reviewer, java-build-resolver | 8 (no field injection, no @Transactional on private) | Spring Boot, Maven/Gradle |
+| `typescript-react` | react-reviewer, typescript-reviewer | 8 (no any, no default exports, no useEffect for state) | React, Next.js, Node.js |
+| `golang` | go-reviewer, go-build-resolver | 7 (no panic(), no goroutine without ctx) | Go microservices, gRPC |
+| `rust` | rust-reviewer, rust-build-resolver | 6 (no unwrap(), no unsafe without comment) | Axum, Actix, systems |
+| `kotlin` | kotlin-reviewer, kotlin-build-resolver | 8 (no !!, no GlobalScope.launch) | Android, KMP |
+| `cpp` | cpp-reviewer, cpp-build-resolver | 9 (no raw new/delete, no C-style casts) | C++20/23, systems |
+| `flutter` | flutter-reviewer | 8 (no setState for complex, no dynamic types) | Flutter/Dart mobile |
+| `dotnet` | (stub — agents coming) | 7 (no async void, no Task.Result) | .NET, ASP.NET Core |
+| `python-django` | (stub — agents coming) | 7 (no raw SQL, no N+1, no objects.all()) | Django, DRF |
+
+### Workflows (7)
+
+#### `ci-quality-gate` — Quality gates before merge
+- `/ci-gate` command — lint, type check, tests, security scan
+- `ci-conventions` rule — all checks must pass, coverage threshold enforced
+
+#### `tdd` — Test-driven development
+- `/tdd` command — strict RED → GREEN → REFACTOR cycle
+- `tdd-conventions` rule — test before implementation, commit per green state
+
+#### `incident-response` — Production debugging
+- `incident-responder` agent — assess, stabilize, diagnose, fix, verify, document
+- `/debug-incident` command — systematic triage workflow
+
+#### `adr` — Architecture Decision Records
+- `/new-adr` command — scaffold ADR with template (context, decision, consequences, alternatives)
+
+#### `onboarding` — New developer orientation
+- `onboarding-buddy` agent — patient tech lead for codebase tours
+- `/explore-codebase` command — guided exploration
+
+#### `usage-tracker` — Token usage and cost analytics
+- `cost-analyst` agent — usage patterns, optimization recommendations
+- `/usage` command — full report (daily, weekly, by model, by agent)
+- `/cost` command — quick current-session estimate
+- `/usage-export` command — CSV/JSON export with Langfuse integration code
+- `cost-awareness` rule — cheapest model for the task, batch operations
+- Hooks: `track-session-start.sh`, `track-session-end.sh`, `track-agent.sh`
+- Data: `.claude/usage/usage-log.csv` (project), `~/.claude/usage/global-usage.csv` (cross-project)
+
+#### `jira-tracker` — JIRA time tracking and sprint analytics
+- `jira-analyst` agent — time attribution, velocity metrics, pattern analysis
+- `/jira-link` command — manually link session to ticket
+- `/jira-time` command — time report by ticket (today/week/all time)
+- `/jira-sprint` command — sprint analytics with velocity insights
+- `/jira-log-time` command — push tracked time to JIRA as worklogs via REST API
+- `/jira-commits` command — git commits correlated with ticket time
+- `jira-conventions` rule — branch naming includes ticket, commit messages prefixed
+- Hooks: `jira-session-start.sh` (auto-detect ticket from branch), `jira-session-end.sh` (log duration)
+- Data: `.claude/jira/time-log.csv` (project), `~/.claude/jira/global-time-log.csv` (cross-project)
+- API: Set `$JIRA_HOST`, `$JIRA_EMAIL`, `$JIRA_TOKEN` for JIRA REST API integration
+
+### Example Templates (4)
+
+Ready-to-use CLAUDE.md examples in `examples/`:
+
+| Template | Stack | Architecture |
+|----------|-------|-------------|
+| `saas-nextjs-CLAUDE.md` | Next.js 14, Supabase, Stripe | App Router, server actions, tRPC |
+| `go-microservice-CLAUDE.md` | Go 1.22, gRPC, PostgreSQL, Redis | Hexagonal, domain-driven |
+| `django-api-CLAUDE.md` | Django 5, DRF, Celery, PostgreSQL | Service layer, async tasks |
+| `rust-api-CLAUDE.md` | Rust 1.77, Axum, SQLx, PostgreSQL | Handler → service → repository |
 
 ---
 
 ## Customizing Your Setup
 
-All customization happens in two places: `claude-pod.yml` (config) and `.claude-local/` (files). After any change, run:
-
-```bash
-bash -c 'CONFIGURATOR_ROOT=.claude-configurator; source $CONFIGURATOR_ROOT/lib/parse_config.sh; source $CONFIGURATOR_ROOT/lib/generate.sh; parse_config claude-pod.yml; run_generate .'
-```
-
-Or if using a remote submodule:
-
-```bash
-.claude-configurator/bin/claude-setup generate
-```
-
-### Changing Workflows
-
-Add or remove workflows in `claude-pod.yml`:
+### `claude-pod.yml` — your pod's config
 
 ```yaml
-workflows:
-  - ci-quality-gate    # Lint, test, security scan
-  - tdd                # Test-driven development
-  - incident-response  # Debugging and incident triage
-  - adr                # Architecture Decision Records
-  - onboarding         # New developer onboarding
-```
+pod:
+  name: "order-service"
+  team: "Platform Engineering"
+  description: "Order processing microservice with event sourcing"
 
-Remove a line to disable that workflow. Each workflow adds its agents, commands, and rules.
+stack: "golang"              # One of 10 stacks
 
-### Adding Pod-Specific Agents
+workflows:                   # Opt-in modules
+  - ci-quality-gate
+  - tdd
+  - jira-tracker
+  - usage-tracker
+  - incident-response
+  - adr
+  - onboarding
 
-1. Create `.claude-local/agents/my-domain-expert.md`:
-
-```markdown
----
-name: my-domain-expert
-description: >
-  Domain expert for [your specific area]. Use when working on [specific context].
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-model: opus
----
-
-You are a **[Role]** who specializes in [domain].
-
-## Context
-
-[Project-specific knowledge that generic agents don't have]
-
-## Key Rules
-
-[Domain-specific rules and anti-patterns]
-```
-
-2. Register it in `claude-pod.yml`:
-
-```yaml
 overrides:
   agents:
+    include:                 # Your pod-specific agents
+      - .claude-local/agents/my-domain-agent.md
+    exclude:                 # Remove irrelevant core agents
+      - e2e-runner
+      - accessibility-tester
+  rules:
     include:
-      - .claude-local/agents/my-domain-expert.md
+      - .claude-local/rules/my-team-conventions.md
+    exclude: []
+  commands:
+    include:
+      - .claude-local/commands/my-deploy.md
+    exclude: []
+
+vars:
+  repo_name: "myorg/order-service"
+  repo_host: "github"          # github | azure-devops | gitlab
+  commit_format: "feat|fix|chore: <summary>"
+  coverage_minimum: "80"
+  primary_language: "go"
+  test_command: "make test"
+  lint_command: "make lint"
+  ci_command: "make ci"
 ```
 
-3. Regenerate: `claude-setup generate`
+### Adding pod-specific agents
 
-### Adding Pod-Specific Commands
+1. Create `.claude-local/agents/my-agent.md` (copy format from any core agent)
+2. Add to `overrides.agents.include` in `claude-pod.yml`
+3. Run `claude-setup generate`
 
-1. Create `.claude-local/commands/my-workflow.md`:
+### Adding pod-specific commands
 
-```markdown
----
-description: Brief description shown in command list.
----
+1. Create `.claude-local/commands/my-command.md` with `description:` frontmatter
+2. Add to `overrides.commands.include`
+3. Regenerate. Shows as `/my-command` in Claude Code.
 
-# My Workflow
+### Adding CLAUDE.md sections
 
-## Steps
+Create `.claude-local/CLAUDE.extra.md` — appended to the generated CLAUDE.md. Use for: architecture diagrams, domain model, extension points, deployment guides, reference doc links.
 
-### 1. Step Name
-[What to do]
-
-### 2. Step Name
-[What to do]
-```
-
-2. Register in `claude-pod.yml` under `overrides.commands.include`.
-
-3. Regenerate. The command appears as `/my-workflow` in Claude Code.
-
-### Adding Pod-Specific Rules
-
-1. Create `.claude-local/rules/my-conventions.md`:
-
-```markdown
----
-paths:
-  - src/**/*.ts
----
-
-# My Team Conventions
-
-- Rule 1
-- Rule 2
-```
-
-2. Register in `claude-pod.yml` under `overrides.rules.include`.
-
-3. Regenerate. The rule is automatically enforced.
-
-### Adding CLAUDE.md Sections
-
-Create or edit `.claude-local/CLAUDE.extra.md`:
-
-```markdown
-## Architecture
-
-[Diagrams, module descriptions, data flow]
-
-## Domain Model
-
-[Key entities, relationships, business rules]
-
-## Extension Points
-
-[How to add new features following team patterns]
-
-## Deployment
-
-[How to deploy, environments, rollback procedures]
-
-## Reference Documents
-
-### Design Doc — `@docs/design/feature-x.md`
-**Read when:** Working on feature X
-
-### Runbook — `@docs/ops/runbook.md`
-**Read when:** Debugging production issues
-```
-
-This content is appended to the generated `CLAUDE.md` automatically.
-
-### Excluding Default Agents
-
-If a core or stack agent doesn't apply to your pod:
+### Excluding defaults
 
 ```yaml
 overrides:
   agents:
     exclude:
-      - e2e-runner           # We don't have a frontend
-      - onboarding-guide     # We use a custom onboarding flow
-      - database-reviewer    # No database in this service
+      - e2e-runner         # No frontend in this service
+      - accessibility-tester  # Backend only
 ```
 
-Same pattern for `rules.exclude` and `commands.exclude`. Use the filename without `.md`.
-
-### Customizing Hooks
-
-The default hooks are in `.claude/hooks/`. To customize:
-
-1. Create `.claude-local/hooks/hooks.json` (pod-specific hooks are not auto-merged — copy from core and modify):
-
-```json
-{
-  "hooks": {
-    "SessionStart": [
-      {
-        "type": "command",
-        "command": "bash .claude/hooks/session-start.sh 2>/dev/null || true"
-      },
-      {
-        "type": "command",
-        "command": "echo 'Reminder: check JIRA board before starting work'"
-      }
-    ],
-    "Stop": [
-      {
-        "type": "command",
-        "command": "bash .claude/hooks/session-end.sh 2>/dev/null || true"
-      }
-    ]
-  }
-}
-```
-
-2. Register in overrides or manually copy to `.claude/hooks/` after generate.
-
-### Adding MCP Integrations
-
-MCP configs in `.claude/mcp-configs/` are templates. To use them:
-
-1. Copy the relevant config to your Claude Code settings:
+### Environment variables for integrations
 
 ```bash
-# For GitHub integration
-cp .claude/mcp-configs/github.json ~/.claude/mcp-servers.json
+# JIRA time tracking
+export JIRA_HOST="your-org.atlassian.net"
+export JIRA_EMAIL="your-email"
+export JIRA_TOKEN="your-api-token"
 
-# Edit to add your token
-# "GITHUB_PERSONAL_ACCESS_TOKEN": "your-token-here"
-```
+# GitHub MCP
+export GITHUB_TOKEN="ghp_..."
 
-2. Or create project-level MCP config in `.claude-local/mcp-configs/`:
-
-```json
-{
-  "mcpServers": {
-    "your-service": {
-      "command": "npx",
-      "args": ["-y", "@your-org/mcp-server"],
-      "env": {
-        "API_KEY": "${YOUR_API_KEY}"
-      }
-    }
-  }
-}
+# Azure DevOps MCP
+export ADO_ORG="your-org"
+export ADO_PAT="your-pat"
 ```
 
 ---
 
-## Updating the Configurator
+## Superpowers Integration
 
-When the shared configurator gets new agents, commands, or stacks:
+The configurator and [Superpowers](https://github.com/obra/superpowers) are complementary:
 
-```bash
-# Pull latest configurator
-cd .claude-configurator && git pull origin main && cd ..
-
-# Or update submodule reference
-git submodule update --remote .claude-configurator
-
-# Regenerate — your pod-specific overrides are preserved
-.claude-configurator/bin/claude-setup sync
-
-# Review what changed
-git diff .claude/ CLAUDE.md
-
-# Commit the update
-git add .claude-configurator .claude/ CLAUDE.md
-git commit -m "chore: update Claude Code configurator"
+```
+SUPERPOWERS = HOW you develop (process enforcement)
+CONFIGURATOR = WHAT Claude knows (domain knowledge)
 ```
 
-The `sync` command shows a diff of what changed, so you can review before committing.
+| Phase | Superpowers | Configurator |
+|-------|------------|-------------|
+| Brainstorm | Forces design before code | api-designer + stack anti-patterns + architecture context |
+| Plan | Breaks into 2-5 min tasks | planner agent uses your patterns, vars for commands |
+| Implement | TDD: RED → GREEN → REFACTOR | tdd-guide + stack testing conventions |
+| Review | Two-stage: spec → quality | code-reviewer + stack-reviewer + security-reviewer |
+| Verify | Runs commands, confirms output | `/validate` runs your `vars.ci_command` |
+| Finish | Merge/PR/cleanup options | git-workflow rules, commit format from vars |
+
+Both active simultaneously, no configuration needed. See [Superpowers Integration Guide](docs/SUPERPOWERS_INTEGRATION.md).
 
 ---
 
-## What's Included
+## Contributing
 
-### Core Agents (22) — always included
-
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| `accessibility-tester` | opus | WCAG compliance, screen reader compat, keyboard navigation |
-| `api-designer` | opus | REST/GraphQL API design, contracts, versioning |
-| `architect` | sonnet | System design review and architectural decisions |
-| `build-error-resolver` | sonnet | Fix build errors with minimal changes |
-| `chief-of-staff` | sonnet | Workflow orchestration and task coordination |
-| `code-reviewer` | sonnet | Multi-pass code review (design, quality, security) |
-| `data-engineer` | opus | ETL pipelines, data warehouse, data quality |
-| `database-reviewer` | sonnet | Query optimization, schema design, DB security |
-| `debugger` | sonnet | Systematic debugging using scientific method |
-| `doc-updater` | sonnet | Keep documentation current with codebase |
-| `docs-lookup` | sonnet | Find and retrieve relevant documentation |
-| `e2e-runner` | sonnet | End-to-end test creation and maintenance |
-| `loop-operator` | sonnet | Manage iterative, multi-cycle workflows |
-| `migration-specialist` | opus | Schema/data migrations, version upgrades |
-| `onboarding-guide` | sonnet | Help new developers understand the codebase |
-| `performance-engineer` | opus | Profiling, bottleneck identification, load testing |
-| `planner` | sonnet | Create comprehensive implementation plans |
-| `prompt-engineer` | opus | Prompt design, evaluation, optimization for LLM features |
-| `refactor-cleaner` | sonnet | Dead code removal and safe refactoring |
-| `security-reviewer` | sonnet | OWASP Top 10, injection, auth, secrets review |
-| `tdd-guide` | sonnet | Test-driven development specialist |
-| `technical-writer` | opus | API docs, user guides, runbooks, architecture docs |
-
-### Core Commands (18)
-
-| Command | Purpose |
-|---------|---------|
-| `/build-fix` | Fix build errors minimally |
-| `/checkpoint` | Save work state before risky operations |
-| `/e2e` | Generate and run E2E tests |
-| `/eval` | Evaluate implementation against criteria |
-| `/explore` | Systematic codebase exploration |
-| `/multi-execute` | Execute coordinated multi-agent waves |
-| `/multi-plan` | Decompose tasks across agents |
-| `/orchestrate` | Coordinate multiple agents |
-| `/plan` | Create implementation plans |
-| `/refactor-clean` | Remove dead code and duplicates |
-| `/review-pr` | Multi-pass PR review |
-| `/sessions` | View and manage session history |
-| `/setup-pod` | Refine pod configuration interactively |
-| `/tdd` | Red-green-refactor cycle |
-| `/test-coverage` | Analyze coverage gaps |
-| `/update-docs` | Update docs to match codebase |
-| `/validate` | Run project quality gate |
-| `/verify` | Verify implementation matches requirements |
-
-### Core Rules (8)
-
-| Rule | Applies To | Enforces |
-|------|-----------|----------|
-| `git-workflow` | All files | Commit conventions, branch naming, PR size |
-| `security` | Code files | No hardcoded creds, parameterized queries, input validation |
-| `testing` | Test files | Every path tested, behavior over implementation, independence |
-| `documentation` | All files | CLAUDE.md current, comments explain WHY, no dead comments |
-| `performance` | All files | No O(n^2), no blocking calls, batch operations |
-| `patterns` | All files | Composition over inheritance, DI, explicit over implicit |
-| `agents` | Agent files | Use specific agents, provide full context, review output |
-| `hooks` | Hook files | Fast, idempotent, silent on success, no code modification |
-
-### Available Stacks (10)
-
-| Stack | Agents | Anti-Patterns | Description |
-|-------|--------|---------------|-------------|
-| `python-spark` | 4 (databricks-developer, databricks-architect, python-reviewer, pytorch-build-resolver) | 10 | PySpark, Delta Lake, Databricks |
-| `java-spring` | 2 (spring-reviewer, java-build-resolver) | 8 | Java, Spring Boot, Maven/Gradle |
-| `typescript-react` | 2 (react-reviewer, typescript-reviewer) | 8 | TypeScript, React, Node.js |
-| `golang` | 2 (go-reviewer, go-build-resolver) | 7 | Go, microservices, gRPC |
-| `rust` | 2 (rust-reviewer, rust-build-resolver) | 6 | Rust, Axum/Actix, systems |
-| `kotlin` | 2 (kotlin-reviewer, kotlin-build-resolver) | 8 | Kotlin, Android, KMP |
-| `cpp` | 2 (cpp-reviewer, cpp-build-resolver) | 9 | C++20/23, systems |
-| `flutter` | 1 (flutter-reviewer) | 8 | Flutter, Dart, mobile |
-| `dotnet` | stub | 7 | .NET, C#, ASP.NET Core |
-| `python-django` | stub | 7 | Python, Django, DRF |
-
-### Available Workflows (5)
-
-| Workflow | Adds | Description |
-|----------|------|-------------|
-| `ci-quality-gate` | `/ci-gate` command, ci-conventions rule | Lint + type check + test + security before merge |
-| `tdd` | `/tdd` command, tdd-conventions rule | Red-green-refactor discipline |
-| `incident-response` | incident-responder agent, `/debug-incident` command | Production debugging and triage |
-| `adr` | `/new-adr` command | Architecture Decision Record management |
-| `onboarding` | onboarding-buddy agent, `/explore-codebase` command | New developer orientation |
-
----
-
-## Adding a New Stack
-
-If your team uses a stack that isn't included:
-
-1. Create a directory under `stacks/`:
+### Adding a New Stack
 
 ```
 stacks/your-stack/
-├── agents/              # Stack-specific agents (optional)
-│   ├── your-reviewer.md
-│   └── your-build-resolver.md
-├── commands/            # Stack-specific commands (optional)
-├── rules/               # Stack-specific rules (optional)
-│   ├── your-style.md
-│   └── testing.md
-├── manifest.yml         # Required: name, description, what it provides
-└── CLAUDE.stack.md      # Required: anti-patterns injected into CLAUDE.md
+├── agents/your-reviewer.md      # Stack-specific code reviewer
+├── agents/your-build-resolver.md  # Stack-specific build fixer
+├── rules/your-style.md           # Coding conventions
+├── rules/testing.md              # Testing conventions
+├── manifest.yml                  # name, description, provides
+└── CLAUDE.stack.md               # Anti-patterns (injected into CLAUDE.md)
 ```
 
-2. Write `manifest.yml`:
+See [Adding a Stack](docs/ADDING_A_STACK.md).
 
-```yaml
-name: your-stack
-description: Your Stack, Framework, Tools
-provides:
-  agents:
-    - your-reviewer
-    - your-build-resolver
-  rules:
-    - your-style
-    - testing
-  commands: []
-```
-
-3. Write `CLAUDE.stack.md` with stack-specific anti-patterns:
-
-```markdown
-- **No X** — reason why X is dangerous
-- **No Y** — reason why Y causes issues
-- **Always Z** — reason why Z is required
-```
-
-4. Add agents/rules following the format in `core/agents/` and `core/rules/`.
-
-5. Test: set `stack: your-stack` in a test fixture and run `bash tests/run_tests.sh`.
-
-6. Commit and push. Any pod can now use `stack: your-stack`.
-
----
-
-## Adding a New Workflow
-
-Workflows are opt-in modules that add agents, commands, and rules for specific practices:
-
-1. Create a directory under `workflows/`:
+### Adding a New Workflow
 
 ```
 workflows/your-workflow/
-├── agents/           # Workflow agents (optional)
-├── commands/         # Workflow commands (optional)
-├── rules/            # Workflow rules (optional)
-└── manifest.yml      # Required: name and description
+├── agents/your-agent.md     # Optional
+├── commands/your-command.md # Optional
+├── rules/your-rule.md       # Optional
+├── hooks/your-hook.sh       # Optional
+└── manifest.yml             # name, description
 ```
 
-2. Write `manifest.yml`:
-
-```yaml
-name: your-workflow
-description: Brief description of what this workflow provides
-```
-
-3. Add content following the formats in `core/`.
-
-4. Commit. Pods add it to their `workflows:` list to opt in.
-
----
-
-## Architecture
-
-### Layering Model
-
-```
-┌─────────────────────────────────────────────┐
-│  Layer 4: .claude-local/ (pod overrides)     │  Highest priority
-├─────────────────────────────────────────────┤
-│  Layer 3: workflows/ (opt-in modules)        │
-├─────────────────────────────────────────────┤
-│  Layer 2: stacks/ (language-specific)        │
-├─────────────────────────────────────────────┤
-│  Layer 1: core/ (universal foundation)       │  Lowest priority
-└─────────────────────────────────────────────┘
-```
-
-Files from higher layers overwrite files with the same name from lower layers. Excludes delete files. Includes add files.
-
-### Generation Steps
-
-1. Clear `.claude/` generated directories (preserve `.claude-local/`)
-2. Copy `core/agents/`, `core/commands/`, `core/rules/`, `core/hooks/`, `core/contexts/`, `core/mcp-configs/`
-3. Overlay `stacks/{stack}/*` (overwrites on filename conflict)
-4. For each workflow: overlay `workflows/{name}/*`
-5. Apply `overrides.exclude` — delete matching files
-6. Apply `overrides.include` — copy from `.claude-local/`
-7. Render `CLAUDE.md` from template + vars + stack anti-patterns + agent/command lists + extra sections
-8. Render `settings.json` from template + vars
-
-### Repository Structure
-
-```
-jnj-claude-configurator/
-├── bin/claude-setup                  CLI entrypoint (init, generate, sync)
-├── lib/
-│   ├── parse_config.sh              YAML parser for claude-pod.yml
-│   ├── generate.sh                  Layer assembly and template rendering
-│   ├── init_wizard.sh               Interactive setup wizard
-│   └── sync.sh                      Regeneration with diff display
-├── core/                             Universal foundation
-│   ├── agents/ (22)                  Core agents
-│   ├── commands/ (18)                Core commands
-│   ├── rules/ (8)                    Core rules
-│   ├── contexts/ (3)                 Dev, review, research modes
-│   ├── hooks/ (4)                    Session lifecycle hooks
-│   └── mcp-configs/ (2)             GitHub, Azure DevOps templates
-├── stacks/ (10)                      Language-specific layers
-├── workflows/ (5)                    Opt-in workflow modules
-├── templates/                        CLAUDE.md and settings.json templates
-├── examples/ (4)                     Ready-to-use CLAUDE.md templates
-├── tests/ (5 suites)                 Bash test suite
-└── docs/ (4 guides)                  Detailed documentation
-```
+See [Adding a Workflow](docs/ADDING_A_WORKFLOW.md).
 
 ---
 
 ## CLI Reference
 
-### `claude-setup init`
+| Command | What It Does |
+|---------|-------------|
+| `claude-setup init` | Interactive wizard → creates `claude-pod.yml`, `.claude-local/`, generates `.claude/` |
+| `claude-setup generate` | Reads `claude-pod.yml`, assembles `.claude/` from layers, renders CLAUDE.md |
+| `claude-setup sync` | Re-runs generate after configurator update, shows diff of changes |
 
-Interactive wizard that creates `claude-pod.yml`, `.claude-local/` skeleton, and runs `generate`.
-
+**Running generate manually** (when submodule isn't on PATH):
 ```bash
-.claude-configurator/bin/claude-setup init
-```
-
-### `claude-setup generate`
-
-Reads `claude-pod.yml` and assembles `.claude/` and `CLAUDE.md` from layered templates.
-
-```bash
-.claude-configurator/bin/claude-setup generate
-```
-
-Validates that your `stack` and all `workflows` exist. Fails fast with clear error messages if not.
-
-### `claude-setup sync`
-
-Re-runs `generate` and shows a diff of what changed. Use after pulling a new configurator version.
-
-```bash
-.claude-configurator/bin/claude-setup sync
+bash -c 'CONFIGURATOR_ROOT=.claude-configurator; source $CONFIGURATOR_ROOT/lib/parse_config.sh; source $CONFIGURATOR_ROOT/lib/generate.sh; parse_config claude-pod.yml; run_generate .'
 ```
 
 ---
 
-## Example Templates
+## Architecture
 
-Ready-to-use `CLAUDE.md` examples in `examples/` for common architectures:
+### Repository Structure
 
-| Template | Stack | Architecture |
-|----------|-------|-------------|
-| `saas-nextjs-CLAUDE.md` | TypeScript, Next.js 14, Supabase, Stripe | App Router, server actions, tRPC |
-| `go-microservice-CLAUDE.md` | Go 1.22, gRPC, PostgreSQL, Redis | Hexagonal architecture, domain-driven |
-| `django-api-CLAUDE.md` | Python 3.12, Django 5, DRF, Celery | Service layer, async tasks |
-| `rust-api-CLAUDE.md` | Rust 1.77, Axum, SQLx, PostgreSQL | Handler → service → repository |
+```
+jnj-claude-configurator/           184 files
+├── bin/claude-setup                CLI entrypoint (init, generate, sync)
+├── lib/
+│   ├── parse_config.sh            YAML parser for claude-pod.yml
+│   ├── generate.sh                Layer assembly + template rendering
+│   ├── init_wizard.sh             Interactive wizard
+│   └── sync.sh                    Regeneration with diff
+├── core/                           Universal foundation
+│   ├── agents/ (22)               Core agents
+│   ├── commands/ (23)             Core commands
+│   ├── rules/ (9)                 Core rules
+│   ├── contexts/ (3)              Dev, review, research modes
+│   ├── hooks/ (12 scripts + json) Lifecycle hooks
+│   ├── mcp-configs/ (2)           GitHub, Azure DevOps
+│   └── agent-memory/              Memory templates + shared memory
+├── stacks/ (10)                    Language-specific layers
+│   ├── python-spark/ (4 agents)
+│   ├── java-spring/ (2 agents)
+│   ├── typescript-react/ (2 agents)
+│   ├── golang/ (2 agents)
+│   ├── rust/ (2 agents)
+│   ├── kotlin/ (2 agents)
+│   ├── cpp/ (2 agents)
+│   ├── flutter/ (1 agent)
+│   ├── dotnet/ (stub)
+│   └── python-django/ (stub)
+├── workflows/ (7)                  Opt-in modules
+│   ├── ci-quality-gate/
+│   ├── tdd/
+│   ├── incident-response/
+│   ├── adr/
+│   ├── onboarding/
+│   ├── usage-tracker/ (3 hooks, 3 commands, 1 agent)
+│   └── jira-tracker/ (2 hooks, 5 commands, 1 agent)
+├── templates/                      CLAUDE.md + settings.json templates
+├── examples/ (4)                   Ready-to-use CLAUDE.md templates
+├── tests/ (5 suites)               Bash test suite
+└── docs/ (5 guides)                Documentation
+```
 
-Use these as starting points for your `.claude-local/CLAUDE.extra.md`.
+### Generation Flow
+
+```
+claude-pod.yml
+     │
+     ▼
+┌──────────────────────────────────────┐
+│ 1. Validate stack + workflows exist  │
+│ 2. Clear .claude/ (preserve memory)  │
+│ 3. Copy core/* → .claude/           │
+│ 4. Overlay stacks/{stack}/*         │
+│ 5. Overlay workflows/{name}/*       │
+│ 6. Apply excludes (delete files)    │
+│ 7. Apply includes (copy from local) │
+│ 8. Scaffold agent memory dirs       │
+│ 9. Render CLAUDE.md from template   │
+│ 10. Render settings.json            │
+└──────────────────────────────────────┘
+     │
+     ▼
+.claude/ + CLAUDE.md (generated)
+```
 
 ---
 
 ## FAQ
 
-**Q: Do I need to understand the configurator to use Claude Code?**
-No. Once set up, developers just use Claude Code normally. The configurator makes it smarter about their specific codebase automatically.
+**Q: Do developers need to know the configurator exists?**
+No. They use Claude Code normally. The configurator makes it smarter about their codebase from the first interaction.
 
 **Q: What if I don't want some core agents?**
-Add them to `overrides.agents.exclude` in `claude-pod.yml`. They won't be generated.
+Add them to `overrides.agents.exclude` in `claude-pod.yml`.
 
 **Q: Can two pods use different stacks?**
-Yes. Each pod has its own `claude-pod.yml` with its own `stack` value. The configurator is a shared submodule, but each pod's config is independent.
+Yes. Each pod has its own `claude-pod.yml`. The configurator is shared, configs are independent.
 
 **Q: What happens when the configurator is updated?**
-Run `claude-setup sync`. Your `.claude-local/` overrides are preserved. Only the generated `.claude/` and `CLAUDE.md` change. Review the diff before committing.
-
-**Q: Can I use this without git submodules?**
-Yes. Clone the configurator anywhere, set `CONFIGURATOR_ROOT` to its path, and run the commands. Submodules are recommended for version pinning.
+Run `claude-setup sync`. Your `.claude-local/` overrides and agent memory are preserved. Review the diff.
 
 **Q: Do hooks require Node.js?**
-No. All hooks are bash scripts — no Node.js dependency. Works on macOS, Linux, and WSL.
+No. All hooks are bash scripts. Works on macOS, Linux, WSL.
 
-**Q: How do I add a stack or workflow for my team?**
-See [Adding a Stack](#adding-a-new-stack) and [Adding a Workflow](#adding-a-new-workflow). Create a directory, add a manifest, and push to the configurator repo.
+**Q: How accurate are the cost estimates?**
+Rough estimates based on message/tool counts (±30%). For precise tracking, use the Anthropic API dashboard or Langfuse export.
 
-**Q: What model do agents use?**
-Core agents use `sonnet` (fast, cost-effective) by default. Tier-1 specialist agents (api-designer, performance-engineer, etc.) use `opus` for deeper reasoning. Stack-specific agents use `sonnet`. You can override the model in any agent's frontmatter.
+**Q: Is agent memory shared across the team?**
+Yes — memory files are committed to git. The whole team benefits from learned patterns.
+
+**Q: What model should agents use?**
+`sonnet` for standard tasks (fast, cheap). `opus` for deep reasoning (API design, architecture, performance analysis). `haiku` for mechanical tasks. Set per-agent in frontmatter.
+
+**Q: Can I use this with Superpowers?**
+Yes — they complement each other. Superpowers enforces the development process, the configurator provides domain knowledge. Both active simultaneously. See [integration guide](docs/SUPERPOWERS_INTEGRATION.md).
+
+**Q: How do I push time to JIRA?**
+Run `/jira-log-time` with `$JIRA_HOST`, `$JIRA_EMAIL`, `$JIRA_TOKEN` set. It aggregates sessions by ticket+day and POSTs worklogs via the JIRA REST API.
 
 ---
 
-## Further Reading
+## Updating
 
-- [Getting Started](docs/GETTING_STARTED.md) — setup guide for pod repos
-- [Adding a Stack](docs/ADDING_A_STACK.md) — contribute a new language stack
-- [Adding a Workflow](docs/ADDING_A_WORKFLOW.md) — contribute a new workflow module
-- [Pod Customization](docs/POD_CUSTOMIZATION.md) — add pod-specific agents, rules, commands
-- [Superpowers Integration](docs/SUPERPOWERS_INTEGRATION.md) — how Superpowers + Configurator work together
+```bash
+git submodule update --remote .claude-configurator
+.claude-configurator/bin/claude-setup sync
+git add .claude-configurator .claude/ CLAUDE.md
+git commit -m "chore: update Claude Code configurator"
+```
 
 ---
 
 ## Credits
 
-Core agent designs inspired by [everything-claude-code](https://github.com/affaan-m/everything-claude-code) by Affaan M. Development methodology integration with [Superpowers](https://github.com/obra/superpowers) by Jesse Vincent. Adapted for enterprise multi-pod use with layered configuration, stack specialization, and federated customization.
+- Core agent designs inspired by [everything-claude-code](https://github.com/affaan-m/everything-claude-code) by Affaan M
+- Memory write gates inspired by [total-recall](https://github.com/davegoldblatt/total-recall) by Dave Goldblatt
+- Development methodology powered by [Superpowers](https://github.com/obra/superpowers) by Jesse Vincent
+- Adapted for enterprise multi-pod use with layered configuration, stack specialization, and federated customization
