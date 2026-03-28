@@ -86,3 +86,53 @@ After completing work:
 2. If the insight is relevant to other agents, also add to shared/MEMORY.md
 3. Use the standard entry format with category, context, evidence, confidence
 ```
+
+## Write Gates
+
+Before an entry is persisted to memory, it must pass at least one quality gate:
+
+| Gate | Question | Prevents |
+|------|----------|----------|
+| **Behavioral Impact** | Will this change how Claude acts? | Storing trivia |
+| **Commitment Value** | Is someone counting on this? | Forgetting deadlines |
+| **Decision Reasoning** | Why was X chosen over Y? | Losing decision context |
+| **Stable Factuality** | Will this remain true tomorrow? | Storing ephemeral info |
+| **Explicit Instruction** | Did the user say "remember"? | Missing explicit requests |
+
+Entries that don't pass any gate are **ephemeral** — relevant now but not worth persisting.
+
+### What Gets Rejected
+
+- Empty or too-short entries (< 20 characters)
+- Entries containing secrets or credentials
+- Entries without actionable insight
+- Entries that are just restating what's in the code
+
+### What Gets Accepted
+
+- Anti-patterns found during review (Behavioral)
+- Sprint deadlines and commitments (Commitment)
+- "We chose X because Y" discussions (Decision)
+- Business rules not in docs (Factual)
+- "Remember, always do X" corrections (Explicit)
+
+## Correction Propagation
+
+When a memory entry is found to be wrong:
+
+1. Old entry is marked `[SUPERSEDED]` with date — never silently deleted
+2. New corrected entry is written to the same location
+3. If cross-cutting, correction propagates to shared memory
+4. Other agents' memories are checked for references to the corrected fact
+
+This creates an audit trail and ensures corrections reach all affected agents.
+
+## Memory Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/memory-write` | Write a new entry with write-gate validation |
+| `/memory-correct` | Correct an existing entry with propagation |
+| `/memory-search` | Search across all agent memories |
+| `/memory-status` | Show entry counts, staleness, size |
+| `/memory-prune` | Remove expired, stale, orphaned entries |
