@@ -1,0 +1,2 @@
+name: ci-quality-gate
+description: Lint, type check, test, and security scan before commit/PR
