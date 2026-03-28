@@ -872,6 +872,16 @@ Core agents use `sonnet` (fast, cost-effective) by default. Tier-1 specialist ag
 
 ---
 
+## Further Reading
+
+- [Getting Started](docs/GETTING_STARTED.md) — setup guide for pod repos
+- [Adding a Stack](docs/ADDING_A_STACK.md) — contribute a new language stack
+- [Adding a Workflow](docs/ADDING_A_WORKFLOW.md) — contribute a new workflow module
+- [Pod Customization](docs/POD_CUSTOMIZATION.md) — add pod-specific agents, rules, commands
+- [Superpowers Integration](docs/SUPERPOWERS_INTEGRATION.md) — how Superpowers + Configurator work together
+
+---
+
 ## Credits
 
-Core agent designs inspired by [everything-claude-code](https://github.com/affaan-m/everything-claude-code) by Affaan M. Adapted for enterprise multi-pod use with layered configuration, stack specialization, and federated customization.
+Core agent designs inspired by [everything-claude-code](https://github.com/affaan-m/everything-claude-code) by Affaan M. Development methodology integration with [Superpowers](https://github.com/obra/superpowers) by Jesse Vincent. Adapted for enterprise multi-pod use with layered configuration, stack specialization, and federated customization.
