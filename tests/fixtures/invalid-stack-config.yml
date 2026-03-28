@@ -1,0 +1,29 @@
+pod:
+  name: "bad-pod"
+  team: "Test"
+  description: "Invalid stack test"
+
+stack: "nonexistent-stack"
+
+workflows: []
+
+overrides:
+  agents:
+    include: []
+    exclude: []
+  rules:
+    include: []
+    exclude: []
+  commands:
+    include: []
+    exclude: []
+
+vars:
+  repo_name: "bad-repo"
+  repo_host: "github"
+  commit_format: "feat: <summary>"
+  coverage_minimum: "80"
+  primary_language: "python"
+  test_command: "make test"
+  lint_command: "make lint"
+  ci_command: "make ci"
