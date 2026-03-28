@@ -31,7 +31,8 @@ run_generate() {
            "$pod_root/.claude/settings.json"
     mkdir -p "$pod_root/.claude/agents" "$pod_root/.claude/commands" \
              "$pod_root/.claude/rules" "$pod_root/.claude/hooks" \
-             "$pod_root/.claude/contexts" "$pod_root/.claude/mcp-configs"
+             "$pod_root/.claude/contexts" "$pod_root/.claude/mcp-configs" \
+             "$pod_root/.claude/agent-memory/shared"
 
     # Step 2-5: Copy core
     copy_layer "$config_root/core" "$pod_root/.claude"
@@ -54,6 +55,28 @@ run_generate() {
     apply_includes "$pod_root" "$pod_root/.claude/rules" "${CFG_OVERRIDE_RULES_INCLUDE[@]+"${CFG_OVERRIDE_RULES_INCLUDE[@]}"}"
     apply_includes "$pod_root" "$pod_root/.claude/commands" "${CFG_OVERRIDE_COMMANDS_INCLUDE[@]+"${CFG_OVERRIDE_COMMANDS_INCLUDE[@]}"}"
 
+    # Step 9.5: Scaffold agent memory directories
+    mkdir -p "$pod_root/.claude/agent-memory/shared"
+    for agent_file in "$pod_root/.claude/agents"/*.md; do
+        [[ -f "$agent_file" ]] || continue
+        local agent_name
+        agent_name="$(basename "$agent_file" .md)"
+        mkdir -p "$pod_root/.claude/agent-memory/$agent_name"
+        # Create MEMORY.md from template if it doesn't exist
+        if [[ ! -f "$pod_root/.claude/agent-memory/$agent_name/MEMORY.md" ]]; then
+            if [[ -f "$config_root/core/agent-memory/templates/MEMORY.md.tmpl" ]]; then
+                sed "s/{{AGENT_NAME}}/$agent_name/g" "$config_root/core/agent-memory/templates/MEMORY.md.tmpl" \
+                    > "$pod_root/.claude/agent-memory/$agent_name/MEMORY.md"
+            fi
+        fi
+    done
+    # Copy shared memory template if it doesn't exist
+    if [[ ! -f "$pod_root/.claude/agent-memory/shared/MEMORY.md" ]]; then
+        if [[ -f "$config_root/core/agent-memory/shared/MEMORY.md" ]]; then
+            cp "$config_root/core/agent-memory/shared/MEMORY.md" "$pod_root/.claude/agent-memory/shared/MEMORY.md"
+        fi
+    fi
+
     # Step 10: Render CLAUDE.md
     render_claude_md "$config_root" "$pod_root"
 
@@ -65,7 +88,7 @@ run_generate() {
 
 copy_layer() {
     local src="$1" dst="$2"
-    for subdir in agents commands rules hooks contexts mcp-configs; do
+    for subdir in agents commands rules hooks contexts mcp-configs agent-memory; do
         if [[ -d "$src/$subdir" ]]; then
             mkdir -p "$dst/$subdir"
             # Copy .md and .json files if they exist (nullglob-safe)
