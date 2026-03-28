@@ -79,6 +79,12 @@
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-edit-check.sh\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/verify-file-references.sh\"",
+            "timeout": 5,
+            "statusMessage": "Verifying file references..."
           }
         ]
       }
@@ -127,6 +133,12 @@
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-end.sh\"",
             "timeout": 10,
             "statusMessage": "Saving session data..."
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/verify-before-claim.sh\"",
+            "timeout": 5,
+            "statusMessage": "Checking claim verification..."
           }
         ]
       }
