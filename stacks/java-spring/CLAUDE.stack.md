@@ -1,0 +1,8 @@
+- **No field injection** — use constructor injection for testability
+- **No `@Autowired` on fields** — use constructor injection with `final` fields
+- **No raw SQL strings** — use parameterized queries or JPA named queries
+- **No `catch (Exception e) {}` (empty catch)** — log or rethrow
+- **No business logic in controllers** — controllers delegate to services
+- **No mutable shared state** — Spring beans are singletons by default
+- **No `@Transactional` on private methods** — Spring proxies can't intercept them
+- **No hardcoded config values** — use `@Value` or `@ConfigurationProperties`

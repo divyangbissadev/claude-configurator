@@ -1,0 +1,11 @@
+name: python-spark
+description: PySpark, Delta Lake, Databricks pipelines
+provides:
+  agents:
+    - databricks-developer
+    - databricks-architect
+  commands:
+    - validate-pipeline
+  rules:
+    - pyspark-style
+    - testing

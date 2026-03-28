@@ -1,0 +1,8 @@
+- **No `any` type** — use `unknown` and narrow, or define proper types
+- **No inline styles for layout** — use CSS modules, Tailwind, or styled-components
+- **No `useEffect` for derived state** — compute during render or use `useMemo`
+- **No prop drilling beyond 2 levels** — use context or state management
+- **No `index` as key** in dynamic lists — use stable unique identifiers
+- **No default exports** — use named exports for better refactoring
+- **No `console.log` in production code** — use a structured logger
+- **No `== null`** — use strict equality `=== null || === undefined` or optional chaining
