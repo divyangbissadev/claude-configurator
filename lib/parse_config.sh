@@ -125,9 +125,9 @@ parse_config() {
                     suffix="$(echo "${subsection}_${override_type}" | tr '[:lower:]' '[:upper:]')"
                     array_target="CFG_OVERRIDE_${suffix}"
                     # Check for empty array on same line: "exclude: []"
-                    if [[ "$trimmed" =~ \[\] ]]; then
-                        array_target=""
-                    fi
+                    case "$trimmed" in
+                        *'[]'*) array_target="" ;;
+                    esac
                 elif [[ -n "$array_target" && "$trimmed" =~ ^-[[:space:]]+(.*) ]]; then
                     local item="${BASH_REMATCH[1]}"
                     item="${item#\"}" ; item="${item%\"}"

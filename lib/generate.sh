@@ -68,11 +68,9 @@ copy_layer() {
     for subdir in agents commands rules hooks contexts mcp-configs; do
         if [[ -d "$src/$subdir" ]]; then
             mkdir -p "$dst/$subdir"
-            # Copy .md and .json files if they exist
-            for ext in md json; do
-                for f in "$src/$subdir"/*."$ext"; do
-                    [[ -f "$f" ]] && cp -f "$f" "$dst/$subdir/"
-                done
+            # Copy .md and .json files if they exist (nullglob-safe)
+            find "$src/$subdir" -maxdepth 1 \( -name '*.md' -o -name '*.json' \) -type f 2>/dev/null | while IFS= read -r f; do
+                cp -f "$f" "$dst/$subdir/"
             done
         fi
     done
