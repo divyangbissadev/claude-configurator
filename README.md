@@ -2,8 +2,6 @@
 
 Enterprise-grade Claude Code configuration generator for multi-pod organizations. **184 files** including 22 core agents, 23 commands, 10 stacks, 7 workflows, 12 hook scripts, write-gated agent memory, JIRA time tracking, and usage analytics.
 
-Inspired by [everything-claude-code](https://github.com/affaan-m/everything-claude-code). Development methodology powered by [Superpowers](https://github.com/obra/superpowers).
-
 ---
 
 ## Table of Contents
@@ -721,10 +719,3 @@ git commit -m "chore: update Claude Code configurator"
 ```
 
 ---
-
-## Credits
-
-- Core agent designs inspired by [everything-claude-code](https://github.com/affaan-m/everything-claude-code) by Affaan M
-- Memory write gates inspired by [total-recall](https://github.com/davegoldblatt/total-recall) by Dave Goldblatt
-- Development methodology powered by [Superpowers](https://github.com/obra/superpowers) by Jesse Vincent
-- Adapted for enterprise multi-pod use with layered configuration, stack specialization, and federated customization
