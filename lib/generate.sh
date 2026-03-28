@@ -83,6 +83,9 @@ run_generate() {
     # Step 11: Render settings.json
     render_settings_json "$config_root" "$pod_root"
 
+    # Step 12: Ensure .gitignore has private paths
+    ensure_gitignore "$pod_root"
+
     echo "Generated .claude/ and CLAUDE.md successfully."
 }
 
@@ -218,4 +221,41 @@ render_settings_json() {
     content="${content//\{\{CI_COMMAND\}\}/$(get_var ci_command)}"
 
     printf '%s\n' "$content" > "$output"
+}
+
+ensure_gitignore() {
+    local pod_root="$1"
+    local gitignore="$pod_root/.gitignore"
+
+    # Entries that should be gitignored (per-developer, not team config)
+    local entries=(
+        ".claude/settings.local.json"
+        ".claude/usage/"
+        ".claude/jira/"
+        ".claude/session-context.md"
+        ".claude/session-log.txt"
+        ".claude/pre-compact-checkpoint.md"
+    )
+
+    # Create .gitignore if it doesn't exist
+    if [[ ! -f "$gitignore" ]]; then
+        echo "# Claude Code — per-developer files (do not commit)" > "$gitignore"
+        for entry in "${entries[@]}"; do
+            echo "$entry" >> "$gitignore"
+        done
+        return 0
+    fi
+
+    # Append missing entries
+    local added_header=false
+    for entry in "${entries[@]}"; do
+        if ! grep -qF "$entry" "$gitignore" 2>/dev/null; then
+            if [[ "$added_header" = false ]] && ! grep -q "Claude Code" "$gitignore" 2>/dev/null; then
+                echo "" >> "$gitignore"
+                echo "# Claude Code — per-developer files (do not commit)" >> "$gitignore"
+                added_header=true
+            fi
+            echo "$entry" >> "$gitignore"
+        fi
+    done
 }
