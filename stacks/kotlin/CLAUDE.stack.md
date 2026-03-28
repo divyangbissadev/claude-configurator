@@ -1,0 +1,8 @@
+- **No Java-style getters/setters** — use Kotlin properties
+- **No `!!` (non-null assertion)** — use safe calls `?.`, `let`, or `require`
+- **No mutable collections when immutable suffice** — prefer `listOf`, `mapOf`
+- **No callback hell** — use coroutines with `suspend` functions
+- **No `companion object` for constants** — use top-level `const val`
+- **No `when` without exhaustive branches** — use sealed classes for type safety
+- **No blocking calls in coroutine scope** — use `withContext(Dispatchers.IO)`
+- **No `var` when `val` suffices** — immutability by default

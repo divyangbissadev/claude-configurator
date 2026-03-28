@@ -1,0 +1,8 @@
+- **No `setState` in complex widgets** — use state management (Riverpod, Bloc, Provider)
+- **No deeply nested widget trees** — extract into separate widgets
+- **No hardcoded strings** — use localization (intl package)
+- **No hardcoded colors/sizes** — use theme and design tokens
+- **No `print()` in production** — use a structured logger
+- **No `dynamic` types** — use proper Dart types with null safety
+- **No blocking the UI thread** — use `compute()` or `Isolate` for heavy work
+- **No `late` without justification** — prefer nullable or required initialization

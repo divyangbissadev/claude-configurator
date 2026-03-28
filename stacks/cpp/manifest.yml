@@ -1,0 +1,8 @@
+name: cpp
+description: C++20/23, systems programming, high-performance computing
+provides:
+  agents:
+    - cpp-reviewer
+    - cpp-build-resolver
+  rules: []
+  commands: []

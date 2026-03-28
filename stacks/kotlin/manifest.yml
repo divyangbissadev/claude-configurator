@@ -1,0 +1,8 @@
+name: kotlin
+description: Kotlin, Android, Kotlin Multiplatform
+provides:
+  agents:
+    - kotlin-reviewer
+    - kotlin-build-resolver
+  rules: []
+  commands: []

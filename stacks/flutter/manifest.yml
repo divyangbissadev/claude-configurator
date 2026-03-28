@@ -1,0 +1,7 @@
+name: flutter
+description: Flutter, Dart, cross-platform mobile
+provides:
+  agents:
+    - flutter-reviewer
+  rules: []
+  commands: []

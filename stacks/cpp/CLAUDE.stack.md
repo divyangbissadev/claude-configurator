@@ -1,0 +1,9 @@
+- **No raw `new`/`delete`** — use smart pointers (`unique_ptr`, `shared_ptr`)
+- **No C-style casts** — use `static_cast`, `dynamic_cast`, `reinterpret_cast`
+- **No `using namespace std;` in headers** — pollutes global namespace
+- **No raw arrays** — use `std::array`, `std::vector`, `std::span`
+- **No manual resource management** — use RAII (constructors/destructors)
+- **No `#define` for constants** — use `constexpr` or `const`
+- **No `NULL`** — use `nullptr`
+- **No implicit conversions** — use `explicit` constructors
+- **No exceptions in destructors** — mark destructors `noexcept`
