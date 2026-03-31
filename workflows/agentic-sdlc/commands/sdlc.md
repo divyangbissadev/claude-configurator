@@ -16,6 +16,9 @@ The user's raw prompt/idea: `$ARGUMENTS`
 
 Before anything else, establish the working context and load provider configuration.
 
+**Also load**: `using-aisdlc` skill (community) — for AI SDLC routing patterns and gate enforcement
+**Also load**: `project-management` skill (community) — for Scrum/Kanban framework patterns
+
 ### 0a. Load SDLC Config
 
 ```bash
@@ -96,13 +99,15 @@ This skill runs a 6-phase analysis pipeline:
 Validate that we're solving the right problem.
 
 **Invoke**: `/product-lens` (everything-claude-code skill)
+**Also load**: `agile-product-owner` skill (community) — for INVEST-compliant user stories and backlog patterns
 
 This skill validates the "why" before building:
 1. Challenges assumptions — is this the right thing to build?
 2. Identifies user personas and use cases
 3. Flags scope creep risks
 4. Runs product diagnostics
-5. **Present findings to user**
+5. If feature work: generate user stories using `agile-product-owner` Given-When-Then templates
+6. **Present findings to user**
 
 **USER GATE — Present validation results and ask:**
 ```
@@ -193,6 +198,9 @@ When the user's prompt is about documentation rather than code:
 ## PHASE 5: SPRINT SETUP (Provider-Agnostic)
 
 Create the project infrastructure for sprint tracking using the configured ticket provider.
+
+**Also load**: `project-management` skill (community) — for Scrum/Kanban patterns, velocity tracking, sprint ceremonies
+**Also load**: `agile-product-owner` skill (community) — for story point estimation, epic breakdown, backlog prioritization
 
 ### 5a. Load Ticket Provider
 
@@ -372,6 +380,12 @@ If user chooses **Adjust**: update remaining ticket descriptions and re-plan.
 
 Run every PR through a multi-agent review pipeline.
 
+**Community skills loaded for this phase:**
+- `code-review-checklist` — structured review covering correctness, security, performance, code quality, testing, docs, and AI/LLM patterns
+- `devsecops-expert` — shift-left security: SAST/DAST, container scanning, secrets management, SBOM, supply chain security
+- `cicd-expert` — CI/CD pipeline validation, security gates, deployment strategy review
+- `ci-cd-best-practices` — pipeline stage conventions, caching, artifact management
+
 ### 7a. Verification
 **Invoke**: `/verification-before-completion` (superpowers skill)
 
@@ -392,24 +406,36 @@ The Iron Law: NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.
 
 ### 7c. Security Review
 **Invoke**: `/security-review` (everything-claude-code skill)
+**Also apply**: `devsecops-expert` skill (community) — for defense-in-depth checks
 - **Dispatch `security-reviewer` agent** (ECC)
 - OWASP Top 10 check, secrets detection, input validation
 - Auth/authorization verification, dependency audit
 - Uses `npm audit`, security eslint plugins
+- `devsecops-expert` adds: SAST scan (Semgrep/CodeQL), SCA scan (Snyk/Dependabot), container image scan (Trivy), SBOM generation, supply chain verification
 
-### 7d. Code Review — Two-Layer Review
+### 7d. Code Review — Four-Layer Review
 
-**Layer 1 — Automated (ECC)**:
+**Layer 1 — Checklist (community)**:
+- **Apply `code-review-checklist` skill** — structured review checklist:
+  - Correctness: logic, edge cases, error handling, bugs
+  - Security: input validation, injection, XSS, CSRF, hardcoded secrets, prompt injection
+  - Performance: N+1 queries, unnecessary loops, caching, bundle size
+  - Code quality: naming, DRY, SOLID, abstraction level
+  - Testing: unit tests, edge cases, test readability
+  - Documentation: complex logic comments, public API docs, README
+  - AI/LLM patterns: chain of thought verification, hallucination checks
+
+**Layer 2 — Automated (ECC)**:
 - **Dispatch `code-reviewer` agent** (everything-claude-code)
   - Confidence-based filtering (>80% sure = report, skip noise)
   - Categories: CRITICAL → HIGH → MEDIUM → LOW
   - Reviews: security, error handling, performance, naming, testing
 
-**Layer 2 — Spec + Quality (superpowers)**:
+**Layer 3 — Spec + Quality (superpowers)**:
 - **Dispatch `spec-reviewer` agent** (superpowers) — verifies code matches spec
 - **Dispatch `code-quality-reviewer` agent** (superpowers) — clean, tested, maintainable
 
-**Layer 3 — Stack-specific (ECC)**:
+**Layer 4 — Stack-specific (ECC)**:
 - Auto-dispatch the relevant stack reviewer based on detected language:
   - `python-reviewer`, `typescript-reviewer`, `go-reviewer`, `rust-reviewer`,
     `java-reviewer`, `kotlin-reviewer`, `cpp-reviewer`, `flutter-reviewer`
@@ -488,28 +514,43 @@ Your choice:
 
 **WAIT for user to explicitly approve merge.**
 
-### 8b. Merge PRs/MRs
+### 8b. CI/CD Pipeline Validation
+**Apply**: `cicd-expert` skill (community) — validate CI/CD passes before merge
+**Apply**: `ci-cd-best-practices` skill (community) — check pipeline conventions
+
+Before merging, verify:
+- All CI checks pass (GitHub Actions / GitLab CI / Azure Pipelines)
+- Security gates pass (SAST, SCA, container scan)
+- Build artifacts generated correctly
+- Deployment preview works (if configured)
+
+If CI/CD pipeline doesn't exist yet for this repo, `cicd-expert` can generate one:
+- GitHub: `.github/workflows/ci.yml`
+- GitLab: `.gitlab-ci.yml`
+- Azure: `azure-pipelines.yml`
+
+### 8c. Merge PRs/MRs
 Using code provider adapter. Merge only user-approved PRs.
 
-### 8c. Close Sprint/Iteration
+### 8d. Close Sprint/Iteration
 Using ticket provider adapter.
 
-### 8d. Sprint Velocity Report
+### 8e. Sprint Velocity Report
 Generate report and publish to configured docs provider.
 
-### 8e. Update CLAUDE.md
+### 8f. Update CLAUDE.md
 Dispatch claude-md-manager agent to update project context.
 
-### 8f. Publish Sprint Report
+### 8g. Publish Sprint Report
 - If Confluence configured: dispatch confluence-writer agent
 - If Notion: use Notion API
 - If markdown-local: write to `docs/sprints/`
 - If GitHub Wiki: push to wiki repo
 
-### 8g. Capture Learnings
+### 8h. Capture Learnings
 Extract reusable patterns for future sprints.
 
-### 8h. Sprint Retrospective
+### 8i. Sprint Retrospective
 
 **USER GATE — Post-sprint feedback:**
 ```
