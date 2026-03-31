@@ -1,0 +1,93 @@
+# Agentic SDLC Configuration
+# Copy to .claude/sdlc-config.yml in your project root
+# Run /sdlc-setup to generate this interactively
+
+# ─── Provider Selection ───────────────────────────────────────
+providers:
+  # Code host: github | gitlab | azure-devops | bitbucket
+  code: github
+
+  # Ticket system: github-issues | jira | azure-boards | gitlab-issues
+  tickets: github-issues
+
+  # Documentation platform: confluence | notion | github-wiki | markdown-local
+  docs: markdown-local
+
+# ─── Code Host Settings ───────────────────────────────────────
+github:
+  owner: ""          # GitHub username or org
+  repo: ""           # Repository name (auto-detected from git remote if empty)
+
+gitlab:
+  host: "gitlab.com" # Self-hosted: gitlab.mycompany.com
+  project_id: ""     # Numeric project ID
+
+azure-devops:
+  org: ""            # Azure DevOps organization
+  project: ""        # Project name
+  repo: ""           # Repository name
+
+bitbucket:
+  workspace: ""      # Bitbucket workspace
+  repo: ""           # Repository slug
+
+# ─── Ticket System Settings ───────────────────────────────────
+# GitHub Issues uses the same config as github code host above
+
+jira:
+  host: ""           # e.g., mycompany.atlassian.net
+  project: ""        # Project key (e.g., PROJ)
+  board_id: ""       # Scrum/Kanban board ID (for sprint management)
+  # Auth: Set JIRA_EMAIL and JIRA_TOKEN env vars
+
+azure-boards:
+  # Uses same org/project as azure-devops code host above
+  team: ""           # Team name for iterations
+
+gitlab-issues:
+  # Uses same config as gitlab code host above
+
+# ─── Documentation Settings ───────────────────────────────────
+confluence:
+  host: ""           # e.g., mycompany.atlassian.net
+  space: ""          # Space key (e.g., DEV, ENG)
+  parent_page_id: "" # Parent page for all SDLC docs
+  # Auth: Set CONFLUENCE_EMAIL and CONFLUENCE_TOKEN env vars
+
+notion:
+  database_id: ""    # Notion database ID for pages
+  # Auth: Set NOTION_TOKEN env var
+
+github-wiki:
+  # Auto-configured from github code host settings
+
+markdown-local:
+  docs_dir: "docs"   # Directory for documentation
+
+# ─── Sprint Settings ─────────────────────────────────────────
+sprint:
+  duration_days: 14          # Default sprint length
+  labels:                    # Custom label set
+    - epic
+    - feature
+    - bug
+    - chore
+    - infra
+    - docs
+    - blocked
+    - in-progress
+    - ready
+
+# ─── Agent Settings ──────────────────────────────────────────
+agents:
+  parallel_limit: 5          # Max concurrent agents
+  use_worktrees: true        # Isolate agents in git worktrees
+  tdd_required: true         # Enforce TDD in ticket workers
+  auto_review: true          # Auto-run code review on PRs
+
+# ─── CLAUDE.md Management ────────────────────────────────────
+claude_md:
+  auto_update: true          # Update CLAUDE.md after sprint changes
+  include_stack_info: true   # Include tech stack in CLAUDE.md
+  include_conventions: true  # Include team conventions
+  include_commands: true     # List available /commands

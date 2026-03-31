@@ -1,6 +1,6 @@
 # jnj-claude-configurator
 
-Enterprise-grade Claude Code configuration generator for multi-pod organizations. **184 files** including 22 core agents, 23 commands, 10 stacks, 7 workflows, 12 hook scripts, write-gated agent memory, JIRA time tracking, and usage analytics.
+Enterprise-grade Claude Code configuration generator for multi-pod organizations. **213 files** including 22 core agents, 28 commands, 10 stacks, 8 workflows, 12 hook scripts, write-gated agent memory, JIRA time tracking, pluggable Agentic SDLC with 12 provider adapters, and usage analytics.
 
 ---
 
@@ -21,7 +21,7 @@ Enterprise-grade Claude Code configuration generator for multi-pod organizations
    - [Agent Memory System](#agent-memory-system)
    - [MCP Integrations (2)](#mcp-integrations-2)
    - [Stacks (10)](#stacks-10)
-   - [Workflows (7)](#workflows-7)
+   - [Workflows (8)](#workflows-8)
    - [Example Templates (4)](#example-templates-4)
 8. [Customizing Your Setup](#customizing-your-setup)
 9. [Superpowers Integration](#superpowers-integration)
@@ -390,7 +390,7 @@ Templates in `.claude/mcp-configs/` — copy and configure with your credentials
 | `dotnet` | (stub — agents coming) | 7 (no async void, no Task.Result) | .NET, ASP.NET Core |
 | `python-django` | (stub — agents coming) | 7 (no raw SQL, no N+1, no objects.all()) | Django, DRF |
 
-### Workflows (7)
+### Workflows (8)
 
 #### `ci-quality-gate` — Quality gates before merge
 - `/ci-gate` command — lint, type check, tests, security scan
@@ -431,6 +431,40 @@ Templates in `.claude/mcp-configs/` — copy and configure with your credentials
 - Hooks: `jira-session-start.sh` (auto-detect ticket from branch), `jira-session-end.sh` (log duration)
 - Data: `.claude/jira/time-log.csv` (project), `~/.claude/jira/global-time-log.csv` (cross-project)
 - API: Set `$JIRA_HOST`, `$JIRA_EMAIL`, `$JIRA_TOKEN` for JIRA REST API integration
+
+#### `agentic-sdlc` — Pluggable Agentic Software Development Life Cycle
+
+**Provider-agnostic SDLC** that works with any combination of code host, ticket system, and docs platform.
+
+**Supported Providers:**
+| Category | Providers |
+|----------|-----------|
+| Code Host | GitHub (`gh`), GitLab (`glab`), Azure DevOps (`az repos`), Bitbucket (REST API) |
+| Tickets | GitHub Issues, Jira (REST API), Azure Boards (`az boards`), GitLab Issues |
+| Documentation | Confluence (REST API), Notion (API), GitHub Wiki, Local Markdown |
+
+**Agents (8):**
+- `prompt-polisher` — refines layman prompts into structured engineering specs
+- `sprint-manager` — creates sprints/milestones, tracks velocity, generates retrospectives
+- `ticket-worker` — picks up tickets, branches, TDD implements, creates PRs/MRs
+- `quality-gate` — runs tests, lint, security, code review on PRs before merge
+- `doc-writer` — creates architecture docs, API docs, guides, sprint reports
+- `doc-reviewer` — reviews documentation for accuracy against the codebase
+- `confluence-writer` — specialist for Confluence storage format, macros, page hierarchy
+- `claude-md-manager` — auto-generates and maintains CLAUDE.md from codebase analysis
+
+**Commands (5):**
+- `/sdlc` — full pipeline: prompt polish → brainstorm → plan → sprint setup → parallel agents → quality gates → sprint close
+- `/sprint` — sprint management: `new`, `board`, `add`, `plan`, `run`, `status`, `close`, `history`, `docs`
+- `/ticket` — work tickets from any provider (GitHub `#42`, Jira `PROJ-123`, or `next`)
+- `/sdlc-docs` — documentation flow: write, review, publish to configured platform
+- `/sdlc-setup` — interactive wizard to configure providers and store in `.claude/sdlc-config.yml`
+
+**Provider Adapters (12):** 4 code, 4 ticket, 4 docs — each with CLI commands, auth, and detection patterns
+**Rules:** `sdlc-conventions` — provider-agnostic branch naming, PR/MR conventions, quality gates, doc flow
+**Hook:** `sdlc-pre-commit.sh` — auto-references ticket ID from branch name in commits
+**Config:** `.claude/sdlc-config.yml` — stores provider selections, sprint settings, agent config
+**Integrates with:** `/devfleet`, `/team-builder`, `/orchestrate` (everything-claude-code), `/brainstorm`, `/writing-plans` (superpowers), Atlassian plugin (Jira/Confluence)
 
 ### Example Templates (4)
 

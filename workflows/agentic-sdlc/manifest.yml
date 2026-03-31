@@ -1,0 +1,8 @@
+name: agentic-sdlc
+description: >
+  Pluggable Agentic SDLC — full software development lifecycle with provider-agnostic
+  support for code hosting (GitHub, GitLab, Azure DevOps, Bitbucket), ticket tracking
+  (GitHub Issues, Jira, Azure Boards, GitLab Issues), and documentation platforms
+  (Confluence, Notion, Wiki, Markdown). Includes prompt refinement, parallel developer
+  agents, documentation flow with review, quality gates, sprint management, and CLAUDE.md
+  auto-management.
