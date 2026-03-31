@@ -27,7 +27,7 @@ overrides:
     exclude: []
 
 vars:
-  repo_name: "jnj-pdp-robotics-wfl"
+  repo_name: "pdp-robotics-wfl"
   repo_host: "azure-devops"
   commit_format: "<JIRA_ID>: <Brief summary>"
   coverage_minimum: "80"

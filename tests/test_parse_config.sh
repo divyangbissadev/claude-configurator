@@ -22,7 +22,7 @@ assert_eq "pod.team" "Data Engineering" "$CFG_POD_TEAM"
 assert_eq "stack" "python-spark" "$CFG_STACK"
 
 # Test: parse vars
-assert_eq "vars.repo_name" "jnj-pdp-robotics-wfl" "$(get_var repo_name)"
+assert_eq "vars.repo_name" "pdp-robotics-wfl" "$(get_var repo_name)"
 assert_eq "vars.repo_host" "azure-devops" "$(get_var repo_host)"
 assert_eq "vars.ci_command" "make ci" "$(get_var ci_command)"
 

@@ -1,4 +1,4 @@
-# jnj-claude-configurator
+# claude-configurator
 
 Enterprise-grade Claude Code configuration generator for multi-pod organizations. **213 files** including 22 core agents, 28 commands, 10 stacks, 8 workflows, 12 hook scripts, write-gated agent memory, JIRA time tracking, pluggable Agentic SDLC with 12 provider adapters, and usage analytics.
 
@@ -644,7 +644,7 @@ bash -c 'CONFIGURATOR_ROOT=.claude-configurator; source $CONFIGURATOR_ROOT/lib/p
 ### Repository Structure
 
 ```
-jnj-claude-configurator/           184 files
+claude-configurator/           213 files
 ├── bin/claude-setup                CLI entrypoint (init, generate, sync)
 ├── lib/
 │   ├── parse_config.sh            YAML parser for claude-pod.yml
