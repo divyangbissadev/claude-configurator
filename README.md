@@ -709,6 +709,26 @@ claude-pod.yml
 
 ---
 
+## Agentic SDLC — Quick Install
+
+The Agentic SDLC workflow can be installed into any repo in 3 commands:
+
+```bash
+git submodule add https://github.com/divyangbissadev/claude-configurator.git .claude-configurator
+mkdir -p .claude/{commands,agents,providers,rules}
+cp .claude-configurator/workflows/agentic-sdlc/commands/*.md .claude/commands/ && \
+cp .claude-configurator/workflows/agentic-sdlc/agents/*.md .claude/agents/ && \
+cp -r .claude-configurator/workflows/agentic-sdlc/providers/* .claude/providers/ && \
+cp .claude-configurator/workflows/agentic-sdlc/rules/*.md .claude/rules/ && \
+cp .claude-configurator/workflows/agentic-sdlc/templates/sdlc-config.yml.example .claude/sdlc-config.yml
+```
+
+Then in Claude Code: `/sdlc-setup` to configure providers, `/sdlc <your idea>` to run.
+
+See **[Full Installation & Usage Guide](docs/AGENTIC_SDLC_INSTALL.md)** for detailed instructions, plugin requirements, provider setup, and all available commands.
+
+---
+
 ## FAQ
 
 **Q: Do developers need to know the configurator exists?**

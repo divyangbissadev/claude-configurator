@@ -2,6 +2,8 @@
 
 Pluggable, AI-powered Software Development Life Cycle for Claude Code. Takes a layman prompt through prompt refinement, planning, sprint management, parallel agent execution, multi-layer code review, and documentation — with user approval gates at every phase.
 
+> **Install in your repo**: See [Installation & Usage Guide](../../docs/AGENTIC_SDLC_INSTALL.md) for full setup instructions.
+
 ## Quick Start
 
 ```bash
