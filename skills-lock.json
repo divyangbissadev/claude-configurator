@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "skills": {
+    "agile-product-owner": {
+      "source": "borghei/claude-skills",
+      "sourceType": "github",
+      "computedHash": "50d11ff59738955a4ce008e76bc18dc96f56266db55271cbc6d9bd9e3939aec1"
+    },
+    "ci-cd-best-practices": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "computedHash": "16c5f5bafd768c74bbf75b69b2d73c7fe2f2915ce57774ae4c6d7b285fd5d357"
+    },
+    "cicd-expert": {
+      "source": "martinholovsky/claude-skills-generator",
+      "sourceType": "github",
+      "computedHash": "0bdbb10c296b5f70e4fe588f4be30bd77f300b06873557af09498fffcd294360"
+    },
+    "code-review-checklist": {
+      "source": "vudovn/antigravity-kit",
+      "sourceType": "github",
+      "computedHash": "e38105a283f7d55b5d990a1981b5aaaaab1fe2a166a4a2959b77fa43113ecc5f"
+    },
+    "devsecops-expert": {
+      "source": "martinholovsky/claude-skills-generator",
+      "sourceType": "github",
+      "computedHash": "0e770b2394b93cd8189a910d92edfb3a5e2b40460c8c2ddb2e13d56dc3254523"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "computedHash": "d31e234f0c90694a670222cdd1dafa853e051d7066beda389f1097c22dadd461"
+    },
+    "project-management": {
+      "source": "miles990/claude-software-skills",
+      "sourceType": "github",
+      "computedHash": "7a34f97b00f89225d6f7760cff905d262a03e7bfaa17bd448ea0274b9dc80010"
+    },
+    "using-aisdlc": {
+      "source": "zixun-github/aisdlc",
+      "sourceType": "github",
+      "computedHash": "e4b7f0087cda8fe6ecc77e57440c1520d56920ceefca99a97faf0d4194bf7d8b"
+    }
+  }
+}
