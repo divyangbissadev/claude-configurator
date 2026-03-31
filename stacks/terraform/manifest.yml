@@ -1,0 +1,15 @@
+name: terraform
+description: Terraform/OpenTofu — modules, state management, providers, testing, and multi-cloud IaC
+provides:
+  agents:
+    - terraform-developer
+    - terraform-module-builder
+    - terraform-security-auditor
+    - terraform-reviewer
+  commands:
+    - validate-terraform
+    - terraform-plan-review
+  rules:
+    - terraform-style
+    - terraform-security
+    - terraform-testing

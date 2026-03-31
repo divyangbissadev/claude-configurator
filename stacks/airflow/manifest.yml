@@ -1,0 +1,13 @@
+name: airflow
+description: Apache Airflow — DAG development, operators, sensors, testing, Astronomer patterns
+provides:
+  agents:
+    - airflow-dag-developer
+    - airflow-plugin-builder
+    - airflow-infra-engineer
+    - airflow-reviewer
+  commands:
+    - validate-dags
+  rules:
+    - airflow-style
+    - airflow-testing

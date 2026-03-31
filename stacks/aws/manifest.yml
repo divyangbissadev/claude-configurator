@@ -1,0 +1,17 @@
+name: aws
+description: AWS cloud services — Lambda, S3, ECS, EKS, Step Functions, Glue, Redshift, CDK, CloudFormation, IAM
+provides:
+  agents:
+    - aws-solutions-architect
+    - aws-lambda-developer
+    - aws-data-engineer
+    - aws-devops-engineer
+    - aws-security-engineer
+    - aws-reviewer
+  commands:
+    - validate-aws
+    - aws-cost-check
+  rules:
+    - aws-style
+    - aws-security
+    - aws-cost

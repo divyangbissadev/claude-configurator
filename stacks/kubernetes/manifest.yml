@@ -1,0 +1,17 @@
+name: kubernetes
+description: Kubernetes — manifests, Helm charts, operators, ArgoCD/GitOps, service mesh, networking, and security
+provides:
+  agents:
+    - k8s-manifest-developer
+    - helm-chart-builder
+    - k8s-gitops-engineer
+    - k8s-networking-engineer
+    - k8s-security-engineer
+    - k8s-reviewer
+  commands:
+    - validate-k8s
+    - k8s-troubleshoot
+  rules:
+    - k8s-style
+    - k8s-security
+    - k8s-networking

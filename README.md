@@ -1,6 +1,6 @@
 # claude-configurator
 
-Enterprise-grade Claude Code configuration generator for multi-pod organizations. **213 files** including 22 core agents, 28 commands, 10 stacks, 8 workflows, 12 hook scripts, write-gated agent memory, JIRA time tracking, pluggable Agentic SDLC with 12 provider adapters, and usage analytics.
+Enterprise-grade Claude Code configuration generator for multi-pod organizations. **282 files** including 22 core agents, 28 commands, 16 stacks (31 stack agents), 8 workflows, 12 hook scripts, write-gated agent memory, JIRA time tracking, pluggable Agentic SDLC with 12 provider adapters, and usage analytics.
 
 ---
 
@@ -20,7 +20,7 @@ Enterprise-grade Claude Code configuration generator for multi-pod organizations
    - [Hooks (12 scripts, 10 events)](#hooks-12-scripts-10-events)
    - [Agent Memory System](#agent-memory-system)
    - [MCP Integrations (2)](#mcp-integrations-2)
-   - [Stacks (10)](#stacks-10)
+   - [Stacks (16)](#stacks-16)
    - [Workflows (8)](#workflows-8)
    - [Example Templates (4)](#example-templates-4)
 8. [Customizing Your Setup](#customizing-your-setup)
@@ -375,7 +375,9 @@ Templates in `.claude/mcp-configs/` — copy and configure with your credentials
 | `github.json` | GitHub API | `$GITHUB_TOKEN` |
 | `azure-devops.json` | Azure DevOps | `$ADO_ORG`, `$ADO_PAT` |
 
-### Stacks (10)
+### Stacks (16)
+
+#### Application Stacks (10)
 
 | Stack | Agents | Anti-Patterns | Best For |
 |-------|--------|---------------|----------|
@@ -389,6 +391,17 @@ Templates in `.claude/mcp-configs/` — copy and configure with your credentials
 | `flutter` | flutter-reviewer | 8 (no setState for complex, no dynamic types) | Flutter/Dart mobile |
 | `dotnet` | (stub — agents coming) | 7 (no async void, no Task.Result) | .NET, ASP.NET Core |
 | `python-django` | (stub — agents coming) | 7 (no raw SQL, no N+1, no objects.all()) | Django, DRF |
+
+#### Platform & Infrastructure Stacks (6) — NEW
+
+| Stack | Agents | Anti-Patterns | Best For |
+|-------|--------|---------------|----------|
+| `databricks` | platform-engineer, dlt-developer, mlops-engineer, unity-catalog-admin, workflow-orchestrator, sql-analyst, reviewer (7) | 12 (no append-only, no schema inference, no hardcoded cluster IDs, always MERGE) | Databricks, Unity Catalog, DLT, MLflow, Feature Store |
+| `airflow` | dag-developer, plugin-builder, infra-engineer, reviewer (4) | 8 (no top-level DAG code, no hardcoded connections, always TaskFlow API) | Apache Airflow, Astronomer, MWAA, Cloud Composer |
+| `aws` | solutions-architect, lambda-developer, data-engineer, devops-engineer, security-engineer, reviewer (6) | 9 (no IAM wildcards, no public S3, no unencrypted, always tag) | AWS Lambda, ECS, EKS, Glue, Redshift, CDK, Step Functions |
+| `terraform` | developer, module-builder, security-auditor, reviewer (4) | 8 (no local state, no count for conditionals, pin versions) | Terraform, OpenTofu, multi-cloud IaC |
+| `kubernetes` | manifest-developer, helm-chart-builder, gitops-engineer, networking-engineer, security-engineer, reviewer (6) | 9 (no latest tag, no root containers, always probes/limits/PDB) | K8s, Helm, ArgoCD, Istio, Kustomize |
+| `observability` | otel-instrumentation-engineer, grafana-dashboard-builder, alerting-engineer, reviewer (4) | 7 (no high-cardinality labels, no alerts without runbooks) | OpenTelemetry, Prometheus, Grafana, Jaeger |
 
 ### Workflows (8)
 

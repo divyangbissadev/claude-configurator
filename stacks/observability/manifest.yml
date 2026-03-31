@@ -1,0 +1,13 @@
+name: observability
+description: OpenTelemetry, Prometheus, Grafana, distributed tracing, metrics, and logging
+provides:
+  agents:
+    - otel-instrumentation-engineer
+    - grafana-dashboard-builder
+    - alerting-engineer
+    - observability-reviewer
+  commands:
+    - validate-observability
+  rules:
+    - observability-style
+    - alerting-conventions
